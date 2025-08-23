@@ -1,11 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Course, Flashcard, Subtopic, KnowledgeLevel, ChatMessage, QuizData, TestResult, Recommendation, Topic, PracticeSession, Project, ProjectStep, LearningGoal, LearningStyle, CourseSource, BlogPostAndIdeas, ContentBlock, InteractiveModelData, HyperparameterData, TriageChallengeData, InterviewQuestion } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set");
+if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // --- SCHEMAS ---
 const quizSchema = {
