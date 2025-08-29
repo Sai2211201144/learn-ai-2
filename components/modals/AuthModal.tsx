@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { AnimatedLearnAIIcon, CloseIcon, LoadingSpinnerIcon } from '../common/Icons';
@@ -16,8 +17,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (email.trim() && !isLoading) {
-            login(email);
+        // Fix: Call login without arguments for Google Auth flow
+        if (!isLoading) {
+            login();
             onClose(); 
         }
     };

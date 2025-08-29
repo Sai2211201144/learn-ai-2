@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useFirebaseAuth } from './context/FirebaseAuthContext';
-import { GoogleLoginButton } from './components/auth/GoogleLoginButton';
 import { KnowledgeLevel, Course, View, Article, DefinitionState } from './types';
 import { useAppContext } from './context/AppContext';
 import { useTheme } from './context/ThemeContext';
@@ -45,6 +43,8 @@ import UnderstandingCheckModal from './components/modals/UnderstandingCheckModal
 import ProjectTutorModal from './components/project/ProjectTutorModal';
 import AnimatedBackground from './components/common/AnimatedBackground';
 import HabitsPage from './components/habits/HabitsPage';
+import { useAuth } from './context/AuthContext';
+import AuthPage from './components/auth/AuthPage';
 
 const ArticleView: React.FC<{ article: Article, onBack: () => void }> = ({ article, onBack }) => {
     const { handleOpenArticleTutor } = useAppContext();
@@ -142,14 +142,15 @@ const DefinitionPopover: React.FC<{
 
 
 function App() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [view, setView] = useState<View>('planner');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const { user: firebaseUser } = useFirebaseAuth();
   
   const { isDark } = useTheme();
   const {
+      isDataLoading,
       activeCourse,
       error,
       activeTask,
@@ -197,6 +198,26 @@ function App() {
         }, 100);
     }
   }, [activeTask, handleSelectCourse, cancelTask]);
+
+  if (isAuthLoading) {
+    return (
+        <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
+            <LoadingSpinnerIcon className="w-12 h-12 text-[var(--color-primary)]" />
+        </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+      return <AuthPage />;
+  }
+
+  if (isDataLoading) {
+      return (
+          <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
+              <LoadingSpinnerIcon className="w-12 h-12 text-[var(--color-primary)]" />
+          </div>
+      );
+  }
   
   const renderContent = () => {
     if (liveInterviewState) {
@@ -287,11 +308,6 @@ function App() {
         </main>
       </div>
 
-      {!firebaseUser && (
-        <div className="fixed bottom-6 left-6 z-20">
-          <GoogleLoginButton />
-        </div>
-      )}
       {!activeArticle && <AIChatButton />}
       <AIChatModal />
       <ArticleTutorModal />

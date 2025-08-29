@@ -1,18 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Course, Flashcard, Subtopic, KnowledgeLevel, ChatMessage, QuizData, TestResult, Recommendation, Topic, PracticeSession, Project, ProjectStep, LearningGoal, LearningStyle, CourseSource, BlogPostAndIdeas, ContentBlock, InteractiveModelData, HyperparameterData, TriageChallengeData, InterviewQuestion } from '../types';
 
-// Only initialize if we have an API key and we're in a server environment
-let ai: GoogleGenAI | null = null;
-
-try {
-    const apiKey = AIzaSyBhw2DcMTkN2d0vRDaodOeXsCERL-0gS10||(import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY;
-    if (apiKey) {
-        ai = new GoogleGenAI({ apiKey });
-    }
-} catch (error) {
-    console.warn('Google GenAI not initialized - API key not available');
+if (!process.env.API_KEY) {
+    throw new Error("API_KEY environment variable not set");
 }
 
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // --- SCHEMAS ---
 const quizSchema = {
@@ -310,9 +303,6 @@ export interface LearningPlanBreakdown {
 
 // --- API CALLER ---
 const callGemini = async (contents: any, schema?: object) => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     try {
         const config = schema ? { responseMimeType: "application/json", responseSchema: schema } : {};
         const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents, config });
@@ -591,9 +581,6 @@ Text to explain:
 
 
 export const generateChatResponse = (history: ChatMessage[], context?: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const systemInstruction = `You are a helpful and knowledgeable AI assistant for a learning platform. ${context || ''}`;
     const contents = history.map(({ role, content }) => ({ role, parts: [{ text: content }] }));
     return ai.models.generateContent({ model: "gemini-2.5-flash", contents, config: { systemInstruction } }).then(res => res.text);
@@ -612,9 +599,6 @@ Code:\n\`\`\`\n${code}\n\`\`\``;
 };
 
 export const explainCodeSnippet = (selectedCode: string, fullContextCode: string, mode: 'explain' | 'comment' | 'refactor'): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     let promptAction = '';
     switch (mode) {
         case 'comment':
@@ -643,9 +627,6 @@ ${fullContextCode}
 };
 
 export const fixMermaidSyntax = (mermaidSyntax: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `The following Mermaid diagram syntax is broken. Please fix it and return only the corrected, valid Mermaid syntax. Do not include any explanation or markdown formatting.
 Broken syntax:\n\`\`\`mermaid\n${mermaidSyntax}\n\`\`\``;
     return callGemini(prompt);
@@ -653,18 +634,12 @@ Broken syntax:\n\`\`\`mermaid\n${mermaidSyntax}\n\`\`\``;
 
 const quizArraySchema = { type: Type.ARRAY, items: quizSchema };
 export const generateAssessmentQuiz = (topic: string, difficulty: KnowledgeLevel, count: number): Promise<QuizData[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `Generate a challenging assessment quiz with ${count} questions for a user with "${difficulty}" knowledge of "${topic}". Each question must have 4 options and a clear explanation for the correct answer.`;
     return callGemini(prompt, quizArraySchema);
 };
 
 const recommendationsSchema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { topic: { type: Type.STRING }, reason: { type: Type.STRING } }, required: ['topic', 'reason'] } };
 export const generateRecommendations = (topic: string, results: TestResult[]): Promise<Recommendation[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `Based on a user's test results for "${topic}", generate 3 specific, actionable recommendations for sub-topics they should study next. For each recommendation, provide a brief reason based on their performance.
 Test History:
 ${results.map(r => `- Difficulty: ${r.difficulty}, Score: ${r.score * 100}%`).join('\n')}
@@ -674,9 +649,6 @@ Focus on areas suggested by lower scores on harder difficulties.`;
 
 const relatedTopicsSchema = recommendationsSchema;
 export const generateRelatedTopics = (courseTitle: string): Promise<Recommendation[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `
 A user has just completed a course on "${courseTitle}".
 Based on this, generate 3 logical and relevant recommendations for the next course or topic they should learn.
@@ -685,54 +657,27 @@ For each recommendation, provide a 'topic' (the name of the next course) and a '
     return callGemini(prompt, relatedTopicsSchema);
 };
 
-export const explainSimply = (text: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
-    return callGemini(`Explain the following concept in simple terms, as if for a beginner:\n"${text}"`);
-};
-export const deeperDive = (text: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
-    return callGemini(`Provide a deeper, more technical explanation of the following concept:\n"${text}"`);
-};
-export const generateHinglishExplanation = (text: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
-    return callGemini(`Explain the following concept in Hinglish (a mix of Hindi and English):\n"${text}"`);
-};
+export const explainSimply = (text: string): Promise<string> => callGemini(`Explain the following concept in simple terms, as if for a beginner:\n"${text}"`);
+export const deeperDive = (text: string): Promise<string> => callGemini(`Provide a deeper, more technical explanation of the following concept:\n"${text}"`);
+export const generateHinglishExplanation = (text: string): Promise<string> => callGemini(`Explain the following concept in Hinglish (a mix of Hindi and English):\n"${text}"`);
 
 export const startLiveInterview = (topic: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `You are an expert, friendly interviewer. Start a mock technical interview on the topic of "${topic}". Introduce yourself and present the first open-ended problem.`;
     return callGemini(prompt);
 };
 
 export const generateLiveInterviewResponse = (topic: string, history: ChatMessage[]): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const systemInstruction = `You are a friendly interviewer conducting a mock technical interview on "${topic}". Continue the conversation based on the history. Guide the user, but don't give away answers.`;
     const contents = history.map(({ role, content }) => ({ role, parts: [{ text: content }] }));
     return ai.models.generateContent({ model: "gemini-2.5-flash", contents, config: { systemInstruction } }).then(res => res.text);
 };
 
 export const generateQuickPracticeQuiz = (topic: string, difficulty: KnowledgeLevel, count: number): Promise<QuizData[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `Generate a quick practice quiz with ${count} questions for a user with "${difficulty}" knowledge of "${topic}". Include explanations.`;
     return callGemini(prompt, quizArraySchema);
 };
 
 export const generateCodeExplanation = (input: { type: 'link' | 'text' | 'image'; content: string | { data: string, mimeType: string } }): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     let contents: any;
     if (input.type === 'image' && typeof input.content === 'object') {
         const imagePart = { inlineData: { mimeType: input.content.mimeType, data: input.content.data } };
@@ -745,9 +690,6 @@ export const generateCodeExplanation = (input: { type: 'link' | 'text' | 'image'
 };
 
 export const generateDailyQuest = async (): Promise<{ title: string; description: string; xp: number; }> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `
 You are a motivational learning coach for a gamified education platform.
 Generate a single, simple, and achievable "Daily Quest" for a user.
@@ -775,9 +717,6 @@ Return the quest as a JSON object with the keys "title", "description", and "xp"
 };
 
 export const defineTerm = (term: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `Provide a concise, clear, and easy-to-understand definition for the following technical term. Return only the definition text.
 Term: "${term}"`;
     return callGemini(prompt);
@@ -786,9 +725,6 @@ Term: "${term}"`;
 // --- LearnAI 2.0 Features ---
 
 export const generateUnderstandingCheck = (lessonContent: string): Promise<QuizData[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `Based *only* on the key concepts from the following lesson content, generate a very short, 2-question multiple-choice quiz to check for understanding. The questions must be direct and simple. Provide a clear explanation for each correct answer.
 
 Lesson Content:
@@ -800,9 +736,6 @@ ${lessonContent}
 };
 
 export const generateRemedialSubtopic = (originalSubtopic: Subtopic): Promise<Subtopic> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `A student is struggling with the subtopic "${originalSubtopic.title}". Your task is to generate a new, simplified, remedial 'article' subtopic to help them understand the core concept.
 
 **Original Subtopic Objective:** ${(originalSubtopic.data as any).objective}
@@ -823,9 +756,6 @@ Return a single JSON object for the new subtopic, adhering to the provided schem
 };
 
 export const reviewProjectCode = (stepInstructions: string, userCode: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `
 You are an expert, friendly AI Pair Programmer. Your role is to provide constructive feedback on a student's code for a project step.
 
@@ -857,9 +787,6 @@ Review the student's code based on the instructions. Provide a short, helpful co
 const interviewQuestionSchema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: { type: Type.STRING }, answer: { type: Type.STRING } }, required: ['question', 'answer'] } };
 
 export const generateInterviewQuestions = (topic: string, difficulty: KnowledgeLevel, count: number, existingQuestions: string[]): Promise<InterviewQuestion[]> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `
 Act as a senior technical interviewer preparing for a session.
 Topic: "${topic}"
@@ -879,9 +806,6 @@ Generate a completely fresh set of ${count} questions.
 };
 
 export const elaborateOnAnswer = (question: string, answer: string): Promise<string> => {
-    if (!ai) {
-        throw new Error("Google GenAI model not initialized. API key not available.");
-    }
     const prompt = `A student is preparing for an interview. The question is: "${question}". The current answer is: "${answer}". Elaborate on this answer. Explain it in more depth but using simple terminologies. Provide a clear example or code snippet if applicable. Return only the elaborated answer text.`;
     return callGemini(prompt);
 };

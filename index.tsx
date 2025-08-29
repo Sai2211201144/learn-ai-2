@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { FirebaseAuthProvider } from './context/FirebaseAuthContext';
+import { AuthProvider } from './context/AuthContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -13,12 +13,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <FirebaseAuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
         <AppProvider>
           <App />
         </AppProvider>
-      </FirebaseAuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

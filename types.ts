@@ -325,6 +325,8 @@ export interface User {
   xp: number;
   level: number;
   achievements: AchievementId[];
+  courses: Course[];
+  projects: Project[];
   articles: Article[];
   folders: Folder[];
   learningPlans: LearningPlan[];

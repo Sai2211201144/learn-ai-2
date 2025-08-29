@@ -1,12 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --font-sans: 'Poppins', sans-serif;
+  --font-serif: 'Poppins', serif; /* Unifying fonts for modern look */
 }
 
-/* Custom scrollbars */
+/* For custom scrollbars to match the new design */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -15,26 +13,26 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: var(--color-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+  background: var(--color-muted-foreground);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: var(--color-secondary);
   border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 3px;
+  background: var(--color-border);
+   border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: var(--color-primary);
 }
 
 .custom-scrollbar-thin::-webkit-scrollbar {
@@ -44,39 +42,23 @@
   background: transparent;
 }
 .custom-scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: var(--color-border);
   border-radius: 2px;
 }
 .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+  background: var(--color-muted-foreground);
 }
+
 
 body {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #000000;
-  background-color: #ffffff;
+    background-color: var(--color-background);
+    font-family: var(--font-sans);
+    background-image: var(--bg-pattern);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global text color fixes */
-* {
-  color: inherit;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: #000000 !important;
-}
-
-p, span, div, button {
-  color: #000000;
-}
-
-button {
-  color: #374151;
-}
-
-/* Utility classes */
+/* For truncating text on dashboard cards */
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -91,33 +73,439 @@ button {
   -webkit-line-clamp: 3;
 }
 
+
+/* Inline Explainer Styles */
+.explainer-popover {
+    position: absolute;
+    z-index: 20;
+    width: 24rem;
+    max-width: 90vw;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    padding: 1rem;
+    animation: fade-in-up-fast 0.3s ease-out forwards;
+}
+
+
 /* Animations */
 @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes modal-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes fade-in-up-fast {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+@keyframes modal-scale-in {
+    from { transform: scale(0.95) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.animate-modal-bg {
+    animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-modal-content {
+    animation: modal-scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px 0px var(--color-primary-glow, transparent);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  50% {
+    box-shadow: 0 0 24px 6px var(--color-primary-glow, transparent);
   }
 }
 
-/* Custom component styles */
-.explainer-popover {
+.animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@keyframes fade-in-up-fast {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up-fast {
+    animation: fade-in-up-fast 0.4s ease-out forwards;
+}
+
+.gradient-text {
+  background: var(--gradient-primary-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+
+/* --- New Dark Mode Glow Effect --- */
+.background-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -10;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    will-change: transform;
+    mix-blend-mode: screen;
+}
+
+.orb1 {
+    width: 400px;
+    height: 400px;
+    background-color: var(--color-primary);
+    animation: move1 20s infinite alternate;
+}
+
+.orb2 {
+    width: 500px;
+    height: 500px;
+    background-color: var(--color-accent);
+    animation: move2 25s infinite alternate;
+}
+
+.orb3 {
+    width: 300px;
+    height: 300px;
+    background-color: var(--color-info);
+    animation: move3 15s infinite alternate;
+}
+
+@keyframes move1 {
+    0% { transform: translate(10vw, 20vh) scale(1); opacity: 0.3; }
+    100% { transform: translate(60vw, 70vh) scale(1.2); opacity: 0.5; }
+}
+@keyframes move2 {
+    0% { transform: translate(80vw, 10vh) scale(0.9); opacity: 0.4; }
+    100% { transform: translate(20vw, 80vh) scale(1.1); opacity: 0.6; }
+}
+@keyframes move3 {
+    0% { transform: translate(50vw, 90vh) scale(1.1); opacity: 0.2; }
+    100% { transform: translate(10vw, 10vh) scale(0.8); opacity: 0.4; }
+}
+
+/* === PROJECT CARD STYLES === */
+.project-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.project-card-glow {
+  content: "";
   position: absolute;
-  z-index: 20;
-  width: 24rem;
-  max-width: 90vw;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  padding: 1rem;
-  animation: fade-in-up-fast 0.3s ease-out forwards;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  background: var(--project-card-border-glow) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+          mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-border-hover);
+}
+
+.project-card:hover .project-card-glow {
+  opacity: 1;
+}
+
+.project-card .category-tag {
+  align-self: flex-start;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  margin-bottom: 1rem;
+}
+
+.project-card .card-content {
+  flex-grow: 1;
+}
+
+.project-card .title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin-bottom: 0.5rem;
+}
+
+.project-card .description {
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  min-height: 63px; /* for 3 lines */
+}
+
+.project-card .tech-stack .heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin-bottom: 0.5rem;
+}
+
+.project-card .tech-stack .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+
+.project-card .card-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-card .action-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.project-card .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-card .btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  border-color: var(--color-border);
+}
+.project-card .btn-secondary:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.project-card .btn-primary {
+  background: var(--gradient-primary-accent);
+  color: var(--color-primary-foreground);
+}
+
+.project-card .btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+.project-card .corner-icon {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 48px;
+  height: 48px;
+  background: var(--corner-icon-bg);
+  border-radius: 0 1rem 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--corner-icon-fg);
+}
+
+/* === STORY MODAL STYLES === */
+.story-dialogue-line {
+    margin-bottom: 0.75rem;
+}
+.story-character {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.story-mannerism {
+    color: var(--color-muted-foreground);
+    font-style: italic;
+    margin: 0 0.25rem;
+}
+.story-description {
+    font-style: italic;
+    color: var(--color-muted-foreground);
+    margin: 1rem 0;
+    border-left: 2px solid var(--color-border);
+    padding-left: 1rem;
+}
+
+/* === CREATE MODAL STEP ANIMATIONS === */
+@keyframes slide-in-from-right {
+  from { opacity: 0; transform: translateX(25px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-out-to-left {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-25px); }
+}
+
+.animate-slide-in-from-right {
+  animation: slide-in-from-right 0.3s ease-out forwards;
+}
+
+.animate-slide-out-to-left {
+  animation: slide-out-to-left 0.3s ease-out forwards;
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+    background: rgba(255, 255, 255, 0.05); /* Semi-transparent white for dark mode */
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.light .glass-card {
+    background: rgba(255, 255, 255, 0.4); /* Different background for light mode */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes subtle-glow {
+    0% { border-color: var(--color-accent); }
+    50% { border-color: var(--color-primary); }
+    100% { border-color: var(--color-accent); }
+}
+
+.animated-glow-border {
+    position: relative;
+}
+
+.animated-glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 18px; /* one more than card */
+    padding: 1px;
+    background: linear-gradient(45deg, var(--color-accent), var(--color-primary));
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    animation: subtle-glow 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.group:hover .animated-glow-border::before,
+.animated-glow-border:hover::before {
+    opacity: 1;
+}
+
+@keyframes shimmer {
+  0% { background-position: -500px 0; }
+  100% { background-position: 500px 0; }
+}
+
+.shimmer-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 60%
+    );
+    animation: shimmer 3s infinite linear;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.group:hover .shimmer-effect::after {
+    opacity: 1;
+}
+
+@keyframes pulse-once {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px 5px var(--color-primary-glow); }
+}
+
+.animate-pulse-glow {
+    animation: pulse-once 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }

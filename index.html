@@ -5,14 +5,38 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnAI: AI Course Generator</title>
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.11.0",
+    "jspdf": "https://esm.sh/jspdf@2.5.1",
+    "html2canvas": "https://esm.sh/html2canvas@1.4.1",
+    "cors": "https://esm.sh/cors@^2.8.5",
+    "express": "https://esm.sh/express@^5.1.0",
+    "dotenv": "https://esm.sh/dotenv@^17.2.1",
+    "graphql": "https://esm.sh/graphql@^16.11.0",
+    "mongoose": "https://esm.sh/mongoose@^8.17.1",
+    "graphql-http": "https://esm.sh/graphql-http@^1.22.4",
+    "pdfjs-dist": "https://esm.sh/pdfjs-dist@4.5.136/build/pdf.mjs",
+    "pdfjs-dist/worker": "https://esm.sh/pdfjs-dist@4.5.136/build/pdf.worker.mjs",
+    "jwt-decode": "https://esm.sh/jwt-decode@^4.0.0",
+    "firebase/app": "https://esm.sh/firebase@10.12.2/app",
+    "firebase/auth": "https://esm.sh/firebase@10.12.2/auth",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.44.2",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.2.1/"
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>

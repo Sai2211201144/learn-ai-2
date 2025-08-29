@@ -3,7 +3,7 @@ import { useAppContext } from '../../context/AppContext';
 import { CloseIcon, PencilIcon, LoadingSpinnerIcon } from '../common/Icons';
 
 const CreateArticlesForFolderModal: React.FC = () => {
-    const { createArticlesModalState, closeCreateArticlesModal, handleBulkGenerateArticles } = useAppContext();
+    const { createArticlesModalState, closeCreateArticlesModal, handleGenerateBulkArticlesForPage } = useAppContext();
     const [syllabus, setSyllabus] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -12,7 +12,7 @@ const CreateArticlesForFolderModal: React.FC = () => {
     const handleGenerate = async () => {
         if (!syllabus.trim() || !createArticlesModalState.folderId) return;
         setIsLoading(true);
-        await handleBulkGenerateArticles(syllabus, createArticlesModalState.folderId);
+        await handleGenerateBulkArticlesForPage(syllabus, createArticlesModalState.folderId);
         setIsLoading(false);
         setSyllabus('');
         closeCreateArticlesModal();
