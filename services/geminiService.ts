@@ -5,7 +5,7 @@ import type { Course, Flashcard, Subtopic, KnowledgeLevel, ChatMessage, QuizData
 let ai: GoogleGenAI | null = null;
 
 try {
-    const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY;
+    const apiKey = AIzaSyBhw2DcMTkN2d0vRDaodOeXsCERL-0gS10||(import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY;
     if (apiKey) {
         ai = new GoogleGenAI({ apiKey });
     }
