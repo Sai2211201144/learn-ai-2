@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo } from 'react';
 import type { View, Habit } from '../../types';
 import { useAppContext } from '../../context/AppContext';
@@ -10,7 +8,7 @@ import {
     CheckCircleIcon,
     SparklesIcon
 } from '../common/Icons';
-import CreatePlanModal from './CreatePlanModal';
+import CreatePlanForm from './CreatePlanForm';
 import WeeklyPlanner from './WeeklyPlanner';
 import DailyGoalCard from './DailyGoalCard';
 
@@ -106,21 +104,21 @@ const HabitCard: React.FC<{ habit: Habit }> = ({ habit }) => {
 
 // --- Main Page Component ---
 const PlannerPage: React.FC = () => {
-    // FIX: Removed handleCreateLearningPlan as it does not exist on AppContextType. The CreatePlanModal uses context directly.
     const { 
         courses, 
         localUser,
         handleAddHabit
     } = useAppContext();
     
-    const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+    if (!localUser) {
+        return null;
+    }
+    
     const [newHabitTitle, setNewHabitTitle] = useState('');
     
     const activePlan = useMemo(() => {
         return localUser.learningPlans?.find(plan => plan.status === 'active');
     }, [localUser.learningPlans]);
-
-    const courseMap = useMemo(() => new Map(courses.map(c => [c.id, c])), [courses]);
 
     const tasks = useMemo(() => {
         if (!activePlan) return [];
@@ -152,15 +150,7 @@ const PlannerPage: React.FC = () => {
                         <WeeklyPlanner plan={activePlan} filteredTasks={tasks}/>
                     </>
                 ) : (
-                    <div className="text-center py-20 px-6 bg-[var(--color-secondary)] border-2 border-dashed border-[var(--color-border)] rounded-xl">
-                        <h3 className="text-xl font-semibold text-[var(--color-foreground)]">No active learning plan.</h3>
-                        <p className="text-[var(--color-muted-foreground)] mt-2 mb-6">
-                            Create a new plan to get started on your next learning adventure.
-                        </p>
-                        <button onClick={() => setIsPlanModalOpen(true)} className="px-5 py-2.5 bg-[var(--color-primary)] text-white font-bold rounded-lg hover:bg-[var(--color-primary-hover)]">
-                            Create New Plan
-                        </button>
-                    </div>
+                    <CreatePlanForm />
                 )}
             </div>
             
@@ -185,11 +175,6 @@ const PlannerPage: React.FC = () => {
                     )}
                 </div>
             </div>
-
-            <CreatePlanModal 
-                isOpen={isPlanModalOpen}
-                onClose={() => setIsPlanModalOpen(false)}
-            />
         </div>
     );
 };

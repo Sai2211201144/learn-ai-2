@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Course, Folder, Article } from '../../types';
 import { useAppContext } from '../../context/AppContext';
@@ -63,20 +61,16 @@ const CreateDropdown: React.FC<{
     );
 };
 
-const CreatorModal: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode; onClose: () => void; }> = ({ title, icon, children, onClose }) => (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 animate-modal-bg" onClick={onClose}>
-        <div className="bg-[var(--color-card)] rounded-xl shadow-2xl p-6 w-full max-w-4xl mx-4 border border-[var(--color-border)] animate-modal-content flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <header className="flex justify-between items-start mb-4 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                    {icon}
-                    <h2 className="text-2xl font-bold text-[var(--color-foreground)]">{title}</h2>
-                </div>
-                <button onClick={onClose} className="p-1 rounded-full text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"><CloseIcon className="w-6 h-6" /></button>
-            </header>
-            <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 -mr-4">
-                {children}
+const CreatorPanel: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode; onClose: () => void; }> = ({ title, icon, children, onClose }) => (
+    <div className="bg-[var(--color-card)] rounded-2xl p-4 border border-[var(--color-border)] animate-fade-in-up-fast mb-8">
+         <header className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-3">
+                {icon}
+                <h2 className="text-xl font-bold text-[var(--color-foreground)]">{title}</h2>
             </div>
-        </div>
+            <button onClick={onClose} className="p-1 rounded-full text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"><CloseIcon className="w-5 h-5" /></button>
+        </header>
+        {children}
     </div>
 );
 
@@ -87,13 +81,12 @@ interface LibraryPageProps {
 }
 
 const LibraryPage: React.FC<LibraryPageProps> = ({ onStartCreate }) => {
-    // FIX: Removed handleCreateLearningPlan as it does not exist on AppContextType. The CreatePlanModal uses context directly.
     const { courses, folders, articles, handleCreateFolder } = useAppContext();
     
     const [searchTerm, setSearchTerm] = useState('');
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
-    const [createModalContent, setCreateModalContent] = useState<'none' | 'single' | 'bulk'>('none');
+    const [createPanelContent, setCreatePanelContent] = useState<'none' | 'single' | 'bulk'>('none');
     
     const courseMap = useMemo(() => new Map(courses.map(c => [c.id, c])), [courses]);
     const articleMap = useMemo(() => new Map(articles.map(a => [a.id, a])), [articles]);
@@ -158,12 +151,23 @@ const LibraryPage: React.FC<LibraryPageProps> = ({ onStartCreate }) => {
                             onStartCreatePlan={() => setIsPlanModalOpen(true)}
                             onStartCreateCourse={onStartCreate}
                             onShowFolderForm={() => handleCreateFolder('New Folder')}
-                            onStartCreateArticle={() => setCreateModalContent('single')}
-                            onStartBulkCreate={() => setCreateModalContent('bulk')}
+                            onStartCreateArticle={() => setCreatePanelContent('single')}
+                            onStartBulkCreate={() => setCreatePanelContent('bulk')}
                         />
                     )}
                 </div>
             </header>
+            
+            {createPanelContent !== 'none' && (
+                <CreatorPanel
+                    onClose={() => setCreatePanelContent('none')}
+                    title={createPanelContent === 'single' ? "AI Article Creator" : "Bulk Article Creator"}
+                    icon={createPanelContent === 'single' ? <PencilIcon className="w-7 h-7 text-[var(--color-primary)]"/> : <RectangleGroupIcon className="w-7 h-7 text-[var(--color-primary)]"/>}
+                >
+                    {createPanelContent === 'single' && <ArticleCreatorPage onGenerationStart={() => setCreatePanelContent('none')} />}
+                    {createPanelContent === 'bulk' && <BulkArticleCreatorPage onGenerationStart={() => setCreatePanelContent('none')} />}
+                </CreatorPanel>
+            )}
 
             <div className="mb-8">
                 <div className="relative w-full">
@@ -189,17 +193,6 @@ const LibraryPage: React.FC<LibraryPageProps> = ({ onStartCreate }) => {
                 isOpen={isPlanModalOpen}
                 onClose={() => setIsPlanModalOpen(false)}
             />
-
-            {createModalContent !== 'none' && (
-                <CreatorModal
-                    onClose={() => setCreateModalContent('none')}
-                    title={createModalContent === 'single' ? "AI Article Creator" : "Bulk Article Creator"}
-                    icon={createModalContent === 'single' ? <PencilIcon className="w-7 h-7 text-[var(--color-primary)]"/> : <RectangleGroupIcon className="w-7 h-7 text-[var(--color-primary)]"/>}
-                >
-                    {createModalContent === 'single' && <ArticleCreatorPage onGenerationStart={() => setCreateModalContent('none')} />}
-                    {createModalContent === 'bulk' && <BulkArticleCreatorPage onGenerationStart={() => setCreateModalContent('none')} />}
-                </CreatorModal>
-            )}
         </div>
     );
 };

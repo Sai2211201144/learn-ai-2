@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { Course, Folder, Progress, KnowledgeLevel, ChatMessage, Subtopic, Topic, InterviewQuestionSet, PracticeSession, BackgroundTask, Project, LiveInterviewState, User, LearningGoal, LearningStyle, CreateTopicsModalState, Achievement, AchievementId, CourseSource, Article, QuizData, StoryModalState, AnalogyModalState, FlashcardModalState, ExpandTopicModalState, InterviewQuestion, InterviewPrepState, LearningItem, Module, ContentBlock, ArticleData, ExploreModalState, MindMapModalState, ArticleIdeasModalState, CreateArticlesModalState, ArticleTutorModalState, SocraticModalState, DailyQuest, DefinitionState, UnderstandingCheckState, ProjectStep, ProjectTutorState, UpNextItem, LearningPlan, DailyTask, Habit, TaskPriority, PlanOutline } from '../types';
 import * as storageService from '../services/storageService';
@@ -14,7 +15,7 @@ interface AppContextType {
     folders: Folder[];
     projects: Project[];
     articles: Article[];
-    localUser: User;
+    localUser: User | null;
     activeCourse: Course | null;
     activeProject: Project | null;
     activeArticle: Article | null;
@@ -1315,7 +1316,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, []);
 
     const value: AppContextType = {
-        courses, folders, projects, articles, localUser: localUser!, activeCourse, activeProject, activeArticle, topic, error, isDataLoading, handleGenerateCourse, handleSelectCourse, handleToggleItemComplete, handleAddHabit, handleToggleHabitCompletion, handleDeleteHabit,
+        courses, folders, projects, articles, localUser: localUser, activeCourse, activeProject, activeArticle, topic, error, isDataLoading, handleGenerateCourse, handleSelectCourse, handleToggleItemComplete, handleAddHabit, handleToggleHabitCompletion, handleDeleteHabit,
         handleDeleteCourse, lastActiveCourseId, isChatOpen, chatHistory, isChatLoading, activeTask, backgroundTasks, liveInterviewState, practiceQuizSession, isPracticeQuizLoading, practiceSession, isPracticeLoading, practiceError, codeExplanation, createTopicsModalState, openCreateTopicsModal, closeCreateTopicsModal, createArticlesModalState, openCreateArticlesModal, closeCreateArticlesModal, unlockAchievement, unlockedAchievementNotification, clearUnlockedAchievementNotification, dailyQuest, definitionState, isDefinitionLoading, closeDefinition, articleIdeasModalState, closeArticleIdeasModal, storyModalState, closeStoryModal, analogyModalState, closeAnalogyModal, flashcardModalState, closeFlashcardModal, expandTopicModalState, closeExpandTopicModal, exploreModalState, closeExploreModal, mindMapModalState, closeMindMapModal, socraticModalState, closeSocraticModal, interviewPrepState, resetInterviewPrep, closeInterviewPrepModal, preloadedTest, clearPreloadedTest, articleTutorModalState, closeArticleTutor, upNextItem, understandingCheckState, closeUnderstandingCheckModal, projectTutorState, closeProjectTutorModal,
         handleGeneratePlanOutline, handleCreateLearningPlanFromOutline, planOutline, isPlanOutlineLoading, clearPlanOutline,
         handleRescheduleTask, handleDeleteTaskFromPlan, handleSetTaskPriority,
