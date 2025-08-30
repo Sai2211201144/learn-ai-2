@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { DailyTask, Course } from '../../types';
+import { DailyTask, Course, TaskPriority } from '../../types';
 import { useAppContext } from '../../context/AppContext';
 import CircularProgressBar from '../common/CircularProgressBar';
-import { CheckIcon, EllipsisVerticalIcon, ArrowLeftIcon, ArrowRightIcon, TrashIcon } from '../common/Icons';
+import { CheckIcon, EllipsisVerticalIcon, ArrowLeftIcon, ArrowRightIcon, TrashIcon, FlagIcon } from '../common/Icons';
 
 interface PlannerTaskCardProps {
     planId: string;
@@ -12,7 +12,7 @@ interface PlannerTaskCardProps {
 }
 
 const PlannerTaskCard: React.FC<PlannerTaskCardProps> = ({ planId, task, course, currentDate }) => {
-    const { handleSelectCourse, handleRescheduleTask, handleDeleteTaskFromPlan } = useAppContext();
+    const { handleSelectCourse, handleRescheduleTask, handleDeleteTaskFromPlan, handleSetTaskPriority } = useAppContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -48,9 +48,28 @@ const PlannerTaskCard: React.FC<PlannerTaskCardProps> = ({ planId, task, course,
         setIsMenuOpen(false);
     };
 
+    const handlePriorityChange = (priority: TaskPriority) => {
+        handleSetTaskPriority(planId, task.id, priority);
+        setIsMenuOpen(false);
+    };
+    
+    const priorityStyles: Record<TaskPriority, string> = {
+        high: 'text-red-500',
+        medium: 'text-orange-400',
+        low: 'text-blue-500',
+    };
+    
+    const priorityClasses = {
+        high: 'border-red-500',
+        medium: 'border-orange-400',
+        low: 'border-blue-500',
+    };
+    const priorityBorder = priorityClasses[task.priority] || 'border-[var(--color-primary)]';
+
+
     return (
         <div 
-            className={`w-full text-left p-2.5 rounded-lg border-l-4 transition-all duration-200 group flex items-start gap-2 relative ${isCompleted ? 'bg-green-500/5 border-green-500/50 opacity-70 hover:opacity-100' : 'bg-[var(--color-card)] border-[var(--color-primary)] hover:bg-[var(--color-secondary-hover)]'}`}
+            className={`w-full text-left p-2.5 rounded-lg border-l-4 transition-all duration-200 group flex items-start gap-2 relative ${isCompleted ? 'bg-green-500/5 border-green-500/50 opacity-70 hover:opacity-100' : `bg-[var(--color-card)] ${priorityBorder} hover:bg-[var(--color-secondary-hover)]`}`}
         >
             <div className="flex-shrink-0 cursor-pointer" onClick={() => handleSelectCourse(course.id)}>
                 <CircularProgressBar 
@@ -81,6 +100,15 @@ const PlannerTaskCard: React.FC<PlannerTaskCardProps> = ({ planId, task, course,
                 </button>
                 {isMenuOpen && (
                     <div ref={menuRef} className="absolute top-full right-0 mt-1 w-48 bg-[var(--color-card)] rounded-lg shadow-2xl border border-[var(--color-border)] z-20 p-1.5 animate-fade-in-up-fast">
+                        <div className="px-2 py-1 text-xs text-[var(--color-muted-foreground)]">Set Priority</div>
+                         {(['high', 'medium', 'low'] as TaskPriority[]).map(p => (
+                            <button key={p} onClick={() => handlePriorityChange(p)} className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded text-sm text-[var(--color-foreground)] hover:bg-[var(--color-secondary)]">
+                                <FlagIcon className={`w-4 h-4 ${priorityStyles[p]}`} /> <span className="capitalize">{p}</span>
+                                {task.priority === p && <CheckIcon className="w-4 h-4 ml-auto text-[var(--color-primary)]" />}
+                            </button>
+                        ))}
+
+                        <div className="my-1 border-t border-[var(--color-border)]"></div>
                         <button onClick={() => handleMove('prev')} className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded text-sm text-[var(--color-foreground)] hover:bg-[var(--color-secondary)]">
                             <ArrowLeftIcon className="w-4 h-4" /> Move a day back
                         </button>

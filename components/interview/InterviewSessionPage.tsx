@@ -1,6 +1,8 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added StopIcon and UserCircleIcon to imports
 import { PaperAirplaneIcon, StopIcon, LoadingSpinnerIcon, AcademicCapIcon, UserCircleIcon } from '../common/Icons';
 
 const InterviewSessionPage: React.FC = () => {

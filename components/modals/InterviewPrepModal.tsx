@@ -1,7 +1,9 @@
 
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { Course, InterviewQuestion, KnowledgeLevel, InterviewQuestionSet } from '../../types';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added SparklesIcon to imports
 import { CloseIcon, AcademicCapIcon, LoadingSpinnerIcon, ChevronDownIcon, SparklesIcon, PlusIcon } from '../common/Icons';
 
 interface InterviewPrepModalProps {

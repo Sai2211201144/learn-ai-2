@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { KnowledgeLevel, Course, View, Article, DefinitionState } from './types';
 import { useAppContext } from './context/AppContext';
@@ -6,12 +8,13 @@ import { useTheme } from './context/ThemeContext';
 import Sidebar from './components/common/Sidebar';
 import LoadingDisplay from './components/common/LoadingDisplay';
 import CourseView from './components/course/CourseView';
+import DashboardPage from './components/dashboard/DashboardPage';
+import LibraryPage from './components/library/LibraryPage';
 import PlannerPage from './components/planner/PlannerPage';
 import AssessmentPage from './components/assessment/AssessmentPage';
 import CreateModal from './components/modals/CreateCourseModal';
 import AIChatModal from './components/chat/AIChatModal';
 import PracticePage from './components/practice/PracticePage';
-import BackgroundGlow from './components/common/BackgroundGlow';
 import SettingsModal from './components/modals/SettingsModal';
 import BackgroundTasksDisplay from './components/dashboard/BackgroundTasksDisplay';
 import { Bars3Icon, LoadingSpinnerIcon, ArrowUturnLeftIcon, AcademicCapIcon, SparklesIcon, CloseIcon } from './components/common/Icons';
@@ -25,7 +28,6 @@ import CodeExplainerPage from './components/explainer/CodeExplainerPage';
 import CreateTopicsForFolderModal from './components/modals/CreateTopicsForFolderModal';
 import ProfilePage from './components/profile/ProfilePage';
 import AchievementToast from './components/common/AchievementToast';
-import ArticleCreatorPage from './components/creator/ArticleCreatorPage';
 import InterviewPrepModal from './components/modals/InterviewPrepModal';
 import StoryModal from './components/modals/StoryModal';
 import AnalogyModal from './components/modals/AnalogyModal';
@@ -37,14 +39,11 @@ import MarkdownRenderer from './components/common/MarkdownRenderer';
 import ArticleIdeasModal from './components/modals/ArticleIdeasModal';
 import CreateArticlesForFolderModal from './components/modals/CreateArticlesForFolderModal';
 import ArticleTutorModal from './components/modals/ArticleTutorModal';
-import BulkArticleCreatorPage from './components/creator/BulkArticleCreatorPage';
 import SocraticModal from './components/modals/SocraticModal';
 import UnderstandingCheckModal from './components/modals/UnderstandingCheckModal';
 import ProjectTutorModal from './components/project/ProjectTutorModal';
 import AnimatedBackground from './components/common/AnimatedBackground';
-import HabitsPage from './components/habits/HabitsPage';
 import { useAuth } from './context/AuthContext';
-import AuthPage from './components/auth/AuthPage';
 
 const ArticleView: React.FC<{ article: Article, onBack: () => void }> = ({ article, onBack }) => {
     const { handleOpenArticleTutor } = useAppContext();
@@ -52,7 +51,7 @@ const ArticleView: React.FC<{ article: Article, onBack: () => void }> = ({ artic
         <div className="w-full max-w-4xl mx-auto animate-fade-in">
             <button onClick={onBack} className="flex items-center gap-2 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] mb-4 text-sm font-semibold">
                 <ArrowUturnLeftIcon className="w-4 h-4"/>
-                Back to Learning Space
+                Back to Library
             </button>
             <article className="bg-[var(--color-card)] p-6 sm:p-8 md:p-12 rounded-2xl border border-[var(--color-border)] shadow-lg">
                 <header className="text-center mb-10 border-b border-dashed border-[var(--color-border)] pb-8">
@@ -142,8 +141,8 @@ const DefinitionPopover: React.FC<{
 
 
 function App() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const [view, setView] = useState<View>('planner');
+  const { isLoading: isAuthLoading } = useAuth();
+  const [view, setView] = useState<View>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -187,36 +186,31 @@ function App() {
       closeProjectTutorModal,
   } = useAppContext();
   
-  // Automatically navigate to a course once it's done generating
-  useEffect(() => {
-    if (activeTask && activeTask.status === 'done' && activeTask.type === 'course_generation' && activeTask.courseId) {
-        handleSelectCourse(activeTask.courseId);
-        const taskId = activeTask.id;
-        // A short timeout to ensure the UI has time to react to the state change before the task disappears.
-        setTimeout(() => {
-            cancelTask(taskId);
-        }, 100);
-    }
-  }, [activeTask, handleSelectCourse, cancelTask]);
+  // Automatically navigate to a course or article once it's done generating
+    useEffect(() => {
+        if (activeTask && activeTask.status === 'done') {
+            const taskId = activeTask.id;
+            
+            if (activeTask.type === 'course_generation' && activeTask.courseId) {
+                handleSelectCourse(activeTask.courseId);
+            } else if ((activeTask.type === 'article_generation' || activeTask.type === 'bulk_article_generation') && activeTask.articleId) {
+                handleSelectArticle(activeTask.articleId);
+            }
 
-  if (isAuthLoading) {
+            // A short timeout to ensure the UI has time to react to the state change before the task disappears.
+            setTimeout(() => {
+                cancelTask(taskId);
+            }, 100);
+        }
+    }, [activeTask, handleSelectCourse, handleSelectArticle, cancelTask]);
+
+  // The app will now show a spinner until the guest session is ready.
+  if (isAuthLoading || isDataLoading) {
     return (
         <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
             <LoadingSpinnerIcon className="w-12 h-12 text-[var(--color-primary)]" />
         </div>
     );
-  }
-
-  if (!isAuthenticated) {
-      return <AuthPage />;
-  }
-
-  if (isDataLoading) {
-      return (
-          <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-              <LoadingSpinnerIcon className="w-12 h-12 text-[var(--color-primary)]" />
-          </div>
-      );
   }
   
   const renderContent = () => {
@@ -231,11 +225,11 @@ function App() {
                     task={activeTask} 
                     onCancel={() => {
                         cancelTask(activeTask.id);
-                        setView('planner');
+                        setView('library');
                     }}
                     onMinimize={() => {
                         minimizeTask(activeTask.id);
-                        setView('planner');
+                        setView('library');
                     }}
                 />
             </div>
@@ -257,9 +251,13 @@ function App() {
     switch (view) {
       case 'profile':
         return <ProfilePage />;
+      case 'library':
+        return <LibraryPage onStartCreate={() => setIsCreateModalOpen(true)} />;
+      case 'planner':
+        return <PlannerPage />;
       case 'assessment':
         return <AssessmentPage 
-            onBackToDashboard={() => setView('planner')} 
+            onBackToDashboard={() => setView('dashboard')} 
             onGenerateCourse={(level, topic) => {
               handleGenerateCourse(topic, level, null, 'theory', 'balanced', undefined, '', false);
             }}
@@ -267,18 +265,16 @@ function App() {
       case 'interview':
         return <InterviewPage onStartLiveInterview={handleStartLiveInterview} onStartInterviewPrep={handleStartInterviewPrep} />;
       case 'projects':
-        return <ProjectsPage onSelectProject={(projectId) => handleSelectProject(projectId)} onBackToDashboard={() => setView('planner')} />;
+        return <ProjectsPage onSelectProject={(projectId) => handleSelectProject(projectId)} onBackToDashboard={() => setView('dashboard')} />;
       case 'practice':
-        return <PracticePage onBack={() => { setView('planner'); }} />;
+        return <PracticePage onBack={() => { setView('dashboard'); }} />;
       case 'practice_quiz':
-        return <QuizSessionPage onBack={() => setView('planner')} />;
-      case 'habits':
-        return <HabitsPage />;
+        return <QuizSessionPage onBack={() => setView('dashboard')} />;
       case 'code_explainer':
         return <CodeExplainerPage />;
-      case 'planner':
+      case 'dashboard':
       default:
-        return <PlannerPage 
+        return <DashboardPage 
             onNavigate={setView} 
             onStartCreate={() => setIsCreateModalOpen(true)} 
         />;

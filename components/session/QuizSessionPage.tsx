@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added XCircleIcon to imports
 import { ChevronLeftIcon, LoadingSpinnerIcon, BeakerIcon, CheckCircleIcon, XCircleIcon, LightBulbIcon } from '../common/Icons';
 
 interface QuizSessionPageProps {

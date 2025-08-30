@@ -1,23 +1,21 @@
 
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Course, Folder } from '../../types';
-// FIX: Added TrashIcon to imports
-import { EllipsisVerticalIcon, FolderArrowDownIcon, TrashIcon, FolderIcon, CheckIcon } from '../common/Icons';
+import { Article, Folder } from '../../types';
+import { EllipsisVerticalIcon, FolderArrowDownIcon, TrashIcon, CheckIcon } from '../common/Icons';
 
-interface CourseCardMenuProps {
-    course: Course;
+interface ArticleCardMenuProps {
+    article: Article;
     folders: Folder[];
-    onMoveCourse: (courseId: string, folderId: string | null) => void;
-    onDeleteCourse: (courseId: string) => void;
+    onMoveArticle: (articleId: string, folderId: string | null) => void;
+    onDeleteArticle: (articleId: string) => void;
 }
 
-const CourseCardMenu: React.FC<CourseCardMenuProps> = ({ course, folders, onMoveCourse, onDeleteCourse }) => {
+const ArticleCardMenu: React.FC<ArticleCardMenuProps> = ({ article, folders, onMoveArticle, onDeleteArticle }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     
-    const courseFolder = folders.find(f => f.courses.some(c => c?.id === course.id));
+    const articleFolder = folders.find(f => f.articles.some(a => a?.id === article.id));
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -31,14 +29,14 @@ const CourseCardMenu: React.FC<CourseCardMenuProps> = ({ course, folders, onMove
     }, []);
 
     const handleMove = (targetFolderId: string | null) => {
-        onMoveCourse(course.id, targetFolderId);
+        onMoveArticle(article.id, targetFolderId);
         setIsOpen(false);
         setIsMoveMenuOpen(false);
     };
 
     const handleDelete = () => {
-        if (window.confirm(`Are you sure you want to delete the topic "${course.title}"? This cannot be undone.`)) {
-            onDeleteCourse(course.id);
+        if (window.confirm(`Are you sure you want to delete the article "${article.title}"? This cannot be undone.`)) {
+            onDeleteArticle(article.id);
         }
         setIsOpen(false);
     };
@@ -62,12 +60,12 @@ const CourseCardMenu: React.FC<CourseCardMenuProps> = ({ course, folders, onMove
                                 <div className="my-1 border-t border-[var(--color-border)]"></div>
                                 <button onClick={() => handleMove(null)} className="w-full text-left flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm text-[var(--color-foreground)] hover:bg-[var(--color-secondary)]">
                                     Uncategorized
-                                    {!courseFolder && <CheckIcon className="w-4 h-4 text-[var(--color-primary)]" />}
+                                    {!articleFolder && <CheckIcon className="w-4 h-4 text-[var(--color-primary)]" />}
                                 </button>
                                 {folders.map(folder => (
                                     <button key={folder.id} onClick={() => handleMove(folder.id)} className="w-full text-left flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm text-[var(--color-foreground)] hover:bg-[var(--color-secondary)]">
                                         <span className="truncate">{folder.name}</span>
-                                        {courseFolder?.id === folder.id && <CheckIcon className="w-4 h-4 text-[var(--color-primary)]" />}
+                                        {articleFolder?.id === folder.id && <CheckIcon className="w-4 h-4 text-[var(--color-primary)]" />}
                                     </button>
                                 ))}
                             </>
@@ -80,7 +78,7 @@ const CourseCardMenu: React.FC<CourseCardMenuProps> = ({ course, folders, onMove
                                 <div className="my-1 border-t border-[var(--color-border)]"></div>
                                 <button onClick={handleDelete} className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm text-[var(--color-destructive)] hover:bg-[var(--color-destructive)]/10">
                                     <TrashIcon className="w-5 h-5" />
-                                    Delete Topic
+                                    Delete Article
                                 </button>
                             </>
                         )}
@@ -91,4 +89,4 @@ const CourseCardMenu: React.FC<CourseCardMenuProps> = ({ course, folders, onMove
     );
 };
 
-export default CourseCardMenu;
+export default ArticleCardMenu;

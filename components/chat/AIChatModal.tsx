@@ -1,6 +1,8 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added UserCircleIcon to imports
 import { LogoIcon, LoadingSpinnerIcon, UserCircleIcon, PaperAirplaneIcon, CloseIcon } from '../common/Icons';
 
 const AIChatModal: React.FC = () => {

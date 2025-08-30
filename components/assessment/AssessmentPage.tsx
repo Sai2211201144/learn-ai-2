@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import * as geminiService from '../../services/geminiService';
 import * as storageService from '../../services/storageService';
 import { KnowledgeLevel, QuizData, TestResult, Recommendation } from '../../types';
+// FIX: Added SparklesIcon to imports
 import { LogoIcon, ClipboardDocumentCheckIcon, ChevronLeftIcon, LoadingSpinnerIcon, SparklesIcon } from '../common/Icons';
 import { useAppContext } from '../../context/AppContext';
 

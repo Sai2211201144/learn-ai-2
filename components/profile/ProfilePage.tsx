@@ -1,9 +1,11 @@
 
+
 import React, { useMemo } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { achievementsList } from '../../services/achievements';
 import AchievementCard from './AchievementCard';
 import ProgressBar from '../common/ProgressBar';
+// FIX: Added UserCircleIcon to imports
 import { UserCircleIcon, AcademicCapIcon } from '../common/Icons';
 
 interface Skill {

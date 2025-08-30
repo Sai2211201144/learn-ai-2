@@ -6,6 +6,7 @@ import React, { useMemo } from 'react';
 import { Project, Course } from '../../types';
 import { useAppContext } from '../../context/AppContext';
 import ProgressBar from '../common/ProgressBar';
+// FIX: Added WrenchScrewdriverIcon and TrashIcon to imports
 import { WrenchScrewdriverIcon, TrashIcon, ChevronLeftIcon } from '../common/Icons';
 
 // Local implementation of groupBy to remove lodash-es dependency

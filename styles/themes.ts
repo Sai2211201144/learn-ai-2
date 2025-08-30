@@ -101,4 +101,37 @@ export const gfgTheme: Theme = {
   }
 };
 
-export const allThemes: Theme[] = [blackAndWhiteTheme, vibrantDarkTheme, gfgTheme];
+export const notionDarkTheme: Theme = {
+  name: 'Notion Dark',
+  properties: {
+    '--color-background': '#191919',
+    '--color-foreground': '#E2E2E2',
+    '--color-muted-foreground': '#9B9A97',
+    '--color-primary': '#2E6ECF', // A subtle blue
+    '--color-primary-hover': '#4A80D6',
+    '--color-primary-foreground': '#FFFFFF',
+    '--color-secondary': '#262626',
+    '--color-secondary-hover': '#333333',
+    '--color-secondary-foreground': '#E2E2E2',
+    '--color-accent': '#EB5757', // A subtle red for destructive actions
+    '--color-border': '#3D3D3D',
+    '--color-border-hover': '#555555',
+    '--color-card': '#262626',
+    '--color-card-foreground': '#E2E2E2',
+    '--color-destructive': '#EB5757',
+    '--color-destructive-foreground': '#FFFFFF',
+    '--color-info': '#38BDF8',
+    '--color-warning': '#FACC15',
+    '--color-topic-progress': '#EF4444',
+    '--color-resource-tag': 'rgba(46, 110, 207, 0.1)',
+    '--color-resource-tag-text': '#2E6ECF',
+    '--color-completed-check': 'var(--color-primary)',
+    '--color-primary-glow': 'rgba(46, 110, 207, 0.2)',
+    '--font-sans': "'Poppins', sans-serif",
+    '--font-serif': "'Poppins', sans-serif",
+    '--project-card-border-glow': 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(46, 110, 207, 0.3),rgba(38, 38, 38, 0))',
+    '--gradient-primary-accent': 'linear-gradient(90deg, var(--color-primary), #4A80D6)',
+  }
+};
+
+export const allThemes: Theme[] = [blackAndWhiteTheme, vibrantDarkTheme, gfgTheme, notionDarkTheme];

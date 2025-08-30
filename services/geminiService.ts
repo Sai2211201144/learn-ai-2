@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Course, Flashcard, Subtopic, KnowledgeLevel, ChatMessage, QuizData, TestResult, Recommendation, Topic, PracticeSession, Project, ProjectStep, LearningGoal, LearningStyle, CourseSource, BlogPostAndIdeas, ContentBlock, InteractiveModelData, HyperparameterData, TriageChallengeData, InterviewQuestion } from '../types';
+import type { Course, Flashcard, Subtopic, KnowledgeLevel, ChatMessage, QuizData, TestResult, Recommendation, Topic, PracticeSession, Project, ProjectStep, LearningGoal, LearningStyle, CourseSource, BlogPostAndIdeas, ContentBlock, InteractiveModelData, HyperparameterData, TriageChallengeData, InterviewQuestion, ArticleData } from '../types';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set");
@@ -401,13 +401,16 @@ Generate a complete JSON object for a learning path about "${topic}". The path m
     return courseWithIds;
 };
 
-export const generateLearningPlan = (topic: string, duration?: number): Promise<LearningPlanBreakdown> => {
+export const generatePlanOutline = async (topic: string, duration?: number, syllabus?: string, refinementPrompt?: string): Promise<LearningPlanBreakdown> => {
     const durationPrompt = duration
         ? `Create a plan that spans exactly ${duration} days.`
         : `First, determine the optimal number of days for a beginner to learn this topic comprehensively and use that duration for the plan.`;
+    
+    const syllabusPrompt = syllabus ? `Base the plan on the following syllabus/key points:\n\`\`\`\n${syllabus}\n\`\`\`` : '';
+    const refinement = refinementPrompt ? `Refine the previous plan based on this feedback: "${refinementPrompt}"` : '';
 
     const prompt = `
-You are an expert curriculum designer and project manager. Your task is to break down a large learning topic into a structured, day-by-day learning plan.
+You are an expert curriculum designer. Your task is to break down a large learning topic into a structured, day-by-day learning plan outline.
 
 **Topic:** "${topic}"
 
@@ -416,6 +419,8 @@ You are an expert curriculum designer and project manager. Your task is to break
 2.  The plan should be logical, progressive, and cover the topic from fundamentals to more advanced concepts.
 3.  For each day, define a specific, focused sub-topic title and a clear, one-sentence learning objective.
 4.  Generate a concise, engaging title for the entire learning plan.
+5.  ${syllabusPrompt}
+6.  ${refinement}
 
 **Output Format:**
 Return a single JSON object that strictly adheres to the provided schema. The 'dailyBreakdown' array must contain an entry for each day of the plan.
@@ -423,6 +428,48 @@ Return a single JSON object that strictly adheres to the provided schema. The 'd
     return callGemini(prompt, learningPlanSchema);
 }
 
+export const generateCourseFromOutline = async (outline: LearningPlanBreakdown): Promise<Omit<Course, 'id' | 'progress'>> => {
+    const prompt = `
+You are a world-class AI Technical Writer and Curriculum Designer.
+Based on the following structured learning plan, generate a complete JSON object for a learning path.
+
+**LEARNING PLAN OUTLINE:**
+*   **Plan Title:** ${outline.planTitle}
+*   **Total Duration:** ${outline.optimalDuration} days
+*   **Daily Breakdown:**
+${outline.dailyBreakdown.map(day => `    *   **Day ${day.day}: ${day.title}** - Objective: ${day.objective}`).join('\n')}
+
+**INSTRUCTIONS & REQUIREMENTS (CRITICAL):**
+1.  **Transform Outline to Course:** Convert the provided daily breakdown into a course structure with Topics and Subtopics. Each day in the plan should become a **Topic** in the course. The 'title' and 'objective' for each day should be used to generate the content for the subtopics within that Topic.
+2.  **Generate Rich Content:** For each Topic (day), generate 2-4 granular **Subtopics**. Each Subtopic must be of type 'article' and contain its own rich content, structured as an array of 2-5 **Content Blocks** ('text', 'code', 'diagram', 'quiz'). The content MUST be detailed, self-contained, and directly related to the day's title and objective.
+3.  **Fill Metadata:** Generate all top-level course information (description, about, category, technologies, etc.) based on the overall plan title. The 'overview' object must be calculated accurately.
+4.  **Adhere to Schema:** The final output must be a single, valid JSON object that strictly follows the provided schema.
+`;
+    const courseData = await callGemini(prompt, courseSchema);
+    
+    if (!courseData.title || !courseData.topics || courseData.topics.length === 0) {
+        throw new Error("Received malformed course data from API.");
+    }
+    
+    const courseWithIds = {
+        ...courseData,
+        topics: courseData.topics.map((topic: Topic, topicIndex: number) => ({
+            ...topic,
+            subtopics: topic.subtopics.map((subtopic: Subtopic, subtopicIndex: number) => ({
+                ...subtopic,
+                id: `subtopic_${topicIndex}-${subtopicIndex}_${Date.now()}`,
+                data: {
+                    ...subtopic.data,
+                    contentBlocks: (subtopic.data as any).contentBlocks?.map((block: ContentBlock, blockIndex: number) => ({
+                        ...block,
+                        id: `block_${topicIndex}-${subtopicIndex}-${blockIndex}_${Date.now()}`
+                    })) || []
+                }
+            }))
+        }))
+    };
+    return courseWithIds;
+};
 
 export const generateBlogPostAndIdeas = (topic: string): Promise<BlogPostAndIdeas> => {
     const prompt = `
@@ -538,18 +585,19 @@ Each new subtopic must be of type 'article' and contain:
 
 Return an array of these new subtopic objects, adhering to the provided JSON schema.
 `;
-    const newSubtopicsData = await callGemini(fullPrompt, newSubtopicsSchema);
+    const newSubtopicsData = await callGemini(fullPrompt, newSubtopicsSchema) as any[];
 
-    // Add unique IDs to the generated content
-    return newSubtopicsData.map((subtopic: Subtopic, subtopicIndex: number) => ({
-        ...subtopic,
+    // FIX: Map the returned data to the correct Subtopic type structure.
+    return newSubtopicsData.map((subtopic, subtopicIndex: number): Subtopic => ({
         id: `subtopic_expanded_${subtopicIndex}_${Date.now()}`,
+        type: 'article', 
+        title: subtopic.title,
         data: {
-            ...subtopic.data,
-            contentBlocks: (subtopic.data as any).contentBlocks?.map((block: ContentBlock, blockIndex: number) => ({
+            objective: subtopic.data.objective,
+            contentBlocks: (subtopic.data.contentBlocks || []).map((block: ContentBlock, blockIndex: number) => ({
                 ...block,
                 id: `block_expanded_${subtopicIndex}-${blockIndex}_${Date.now()}`
-            })) || []
+            }))
         }
     }));
 }
@@ -735,10 +783,15 @@ ${lessonContent}
     return callGemini(prompt, { type: Type.ARRAY, items: quizSchema, maxItems: 2, minItems: 2 });
 };
 
-export const generateRemedialSubtopic = (originalSubtopic: Subtopic): Promise<Subtopic> => {
+export const generateRemedialSubtopic = async (originalSubtopic: Subtopic): Promise<Subtopic> => {
+    // FIX: Safely access objective property with a type guard.
+    const originalObjective = (originalSubtopic.type === 'article' && originalSubtopic.data.objective)
+        ? originalSubtopic.data.objective
+        : 'Understand the core concept.';
+        
     const prompt = `A student is struggling with the subtopic "${originalSubtopic.title}". Your task is to generate a new, simplified, remedial 'article' subtopic to help them understand the core concept.
 
-**Original Subtopic Objective:** ${(originalSubtopic.data as any).objective}
+**Original Subtopic Objective:** ${originalObjective}
 
 **Instructions:**
 1.  **Simplify Title:** Create a new title that is more approachable, like "Understanding [Concept]: A Simpler Look".
@@ -751,8 +804,22 @@ export const generateRemedialSubtopic = (originalSubtopic: Subtopic): Promise<Su
 
 Return a single JSON object for the new subtopic, adhering to the provided schema.
 `;
-    // We only need the schema for a single subtopic, not an array
-    return callGemini(prompt, subtopicSchema);
+    // FIX: Make the function async and handle the returned data correctly.
+    const returnedData = await callGemini(prompt, subtopicSchema) as any;
+
+    const remedialSubtopic: Subtopic = {
+        id: `subtopic_remedial_${Date.now()}`,
+        type: 'article',
+        title: returnedData.title,
+        data: {
+            objective: returnedData.data.objective,
+            contentBlocks: (returnedData.data.contentBlocks || []).map((block: ContentBlock, blockIndex: number) => ({
+                ...block,
+                id: `block_remedial_${blockIndex}_${Date.now()}`
+            }))
+        }
+    };
+    return remedialSubtopic;
 };
 
 export const reviewProjectCode = (stepInstructions: string, userCode: string): Promise<string> => {

@@ -1,6 +1,8 @@
 
+
 import React from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added SparklesIcon to imports
 import { CloseIcon, LightBulbIcon, LoadingSpinnerIcon, SparklesIcon } from '../common/Icons';
 
 const ArticleIdeasModal: React.FC = () => {

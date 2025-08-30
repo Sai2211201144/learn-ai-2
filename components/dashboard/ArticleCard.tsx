@@ -3,14 +3,20 @@ import React from 'react';
 import { Article, Folder } from '../../types';
 import { useAppContext } from '../../context/AppContext';
 import { PencilIcon } from '../common/Icons';
+import ArticleCardMenu from './ArticleCardMenu';
 
 const ArticleCard: React.FC<{ article: Article; folders: Folder[] }> = ({ article, folders }) => {
-    const { handleSelectArticle } = useAppContext();
+    const { handleSelectArticle, handleMoveArticleToFolder, handleDeleteArticle } = useAppContext();
     return (
-        <div className="project-card h-full">
+        <div className="project-card h-full group">
             <div className="project-card-glow"></div>
-            <div className="absolute top-4 right-4 z-10">
-                {/* A menu could be added here if needed in the future */}
+            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ArticleCardMenu
+                    article={article}
+                    folders={folders}
+                    onMoveArticle={handleMoveArticleToFolder}
+                    onDeleteArticle={handleDeleteArticle}
+                />
             </div>
             <div className="cursor-pointer flex flex-col flex-grow" onClick={() => handleSelectArticle(article.id)}>
                 <div className="corner-icon" style={{ '--corner-icon-bg': 'var(--color-accent)', '--corner-icon-fg': '#ffffff' } as React.CSSProperties}>

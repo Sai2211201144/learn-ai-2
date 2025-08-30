@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added SparklesIcon to imports
 import { SparklesIcon } from '../common/Icons';
 
 const TextContentBlock: React.FC<{ text: string }> = ({ text }) => {

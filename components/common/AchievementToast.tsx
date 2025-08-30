@@ -1,6 +1,8 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added TrophyIcon to imports
 import { TrophyIcon } from './Icons';
 
 const AchievementToast: React.FC = () => {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { QuizData } from '../../types';
+// FIX: Added XCircleIcon to imports
 import { CheckCircleIcon, XCircleIcon } from '../common/Icons';
 
 interface QuizBlockProps {

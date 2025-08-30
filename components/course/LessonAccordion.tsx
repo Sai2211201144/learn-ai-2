@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Course, Topic, Progress, Subtopic } from '../../types';
+// FIX: Added SparklesIcon to imports
 import { ChevronDownIcon, CheckIcon, BookOpenIcon, SparklesIcon } from '../common/Icons';
 
 interface SubtopicItemProps {

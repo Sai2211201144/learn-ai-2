@@ -6,9 +6,10 @@ import { PlusIcon } from '../common/Icons';
 
 interface WeeklyPlannerProps {
     plan: LearningPlan;
+    filteredTasks: DailyTask[];
 }
 
-const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({ plan }) => {
+const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({ plan, filteredTasks }) => {
     const { courses } = useAppContext();
     const courseMap = useMemo(() => new Map(courses.map(c => [c.id, c])), [courses]);
 
@@ -21,7 +22,7 @@ const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({ plan }) => {
 
     const tasksByDate = useMemo(() => {
         const map = new Map<number, DailyTask[]>();
-        plan.dailyTasks.forEach(task => {
+        filteredTasks.forEach(task => {
             const taskDate = new Date(task.date);
             taskDate.setHours(0, 0, 0, 0);
             const dateKey = taskDate.getTime();
@@ -31,7 +32,7 @@ const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({ plan }) => {
             map.get(dateKey)!.push(task);
         });
         return map;
-    }, [plan.dailyTasks]);
+    }, [filteredTasks]);
 
     return (
         <div className="bg-[var(--color-card)] p-4 rounded-2xl border border-[var(--color-border)]">

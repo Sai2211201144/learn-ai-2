@@ -1,5 +1,9 @@
 
 
+import React from 'react';
+
+export type TaskPriority = 'low' | 'medium' | 'high';
+
 export type AchievementId = 'curiousMind' | 'topicExplorer' | 'firstSteps' | 'dedicatedLearner' | 'projectStarter' | 'quizMaster';
 
 export interface Achievement {
@@ -218,47 +222,81 @@ export interface StoryModalState {
   error: string | null;
 }
 
-export interface CreateTopicsModalState {
-  isOpen: boolean;
-  folderId: string | null;
-}
-
-export interface CreateArticlesModalState {
-  isOpen: boolean;
-  folderId: string | null;
-}
-
-export interface ExpandTopicModalState {
-  isOpen: boolean;
-  isLoading: boolean;
-  course: Course | null;
-  topic: Topic | null;
-  subtopic: Subtopic | null;
-  error: string | null;
-}
-
 export interface AnalogyModalState {
-  isOpen: boolean;
-  isLoading: boolean;
-  title: string;
-  analogy: string;
-  error: string | null;
-}
-
-export interface SocraticModalState {
-  isOpen: boolean;
-  isLoading: boolean;
-  subtopic: Subtopic | LearningItem | null;
-  quiz: QuizData[];
-  error: string | null;
+    isOpen: boolean;
+    isLoading: boolean;
+    title: string;
+    analogy: string;
+    error: string | null;
 }
 
 export interface FlashcardModalState {
-  isOpen: boolean;
-  isLoading: boolean;
-  title: string;
-  flashcards: Flashcard[];
-  error: string | null;
+    isOpen: boolean;
+    isLoading: boolean;
+    title: string;
+    flashcards: Flashcard[];
+    error: string | null;
+}
+
+export interface SocraticModalState {
+    isOpen: boolean;
+    isLoading: boolean;
+    subtopic: Subtopic | null;
+    quiz: QuizData[];
+    error: string | null;
+}
+
+export interface ExpandTopicModalState {
+    isOpen: boolean;
+    isLoading: boolean;
+    course: Course | null;
+    topic: Topic | null;
+    subtopic: Subtopic | null;
+    error: string | null;
+}
+
+export interface ExploreModalState {
+    isOpen: boolean;
+    isLoading: boolean;
+    course: Course | null;
+    relatedTopics: RelatedTopic[];
+}
+
+export interface MindMapNode {
+    title: string;
+    children: MindMapNode[];
+}
+
+export interface MindMapModalState {
+    isOpen: boolean;
+    course: Course | null;
+}
+
+export interface InterviewPrepState {
+    isOpen: boolean;
+    course: Course | null;
+    questionSets: InterviewQuestionSet[];
+    isGenerating: boolean;
+    elaboratingIndex: { setIndex: number; qIndex: number } | null;
+    error: string | null;
+}
+
+export interface BackgroundTask {
+    id: string;
+    type: 'course_generation' | 'project_generation' | 'topic_expansion' | 'plan_generation' | 'article_generation' | 'bulk_article_generation';
+    topic: string;
+    status: 'generating' | 'done' | 'error';
+    message: string;
+    courseId?: string;
+    projectId?: string;
+    articleId?: string;
+}
+
+export interface LiveInterviewState {
+    topic: string;
+    transcript: ChatMessage[];
+    isLoading: boolean;
+    error: string | null;
 }
 
 export interface PracticeConcept {
@@ -273,49 +311,115 @@ export interface PracticeSession {
     quiz: QuizData[];
 }
 
-export interface BackgroundTask {
-    id: string;
-    type: 'course_generation' | 'topic_expansion' | 'project_generation' | 'plan_generation';
-    topic: string;
-    status: 'generating' | 'done' | 'error';
-    message: string;
-    courseId?: string;
-    projectId?: string;
+export type CourseSource = { type: 'syllabus'; content: string } | { type: 'url'; content: string } | { type: 'pdf'; content: string, filename?: string };
+
+export interface CreateTopicsModalState {
+    isOpen: boolean;
+    folderId: string | null;
+}
+export interface CreateArticlesModalState {
+    isOpen: boolean;
+    folderId: string | null;
 }
 
-export interface LiveInterviewState {
-  topic: string;
-  transcript: ChatMessage[];
-  isLoading: boolean;
-  error: string | null;
+export interface BlogPostAndIdeas {
+    title: string;
+    subtitle: string;
+    blogPost: string;
+    relatedTopics: string[];
 }
+
+export interface ArticleIdeasModalState {
+    isOpen: boolean;
+    isLoading: boolean;
+    course: Course | null;
+    ideas: string[];
+    error: string | null;
+}
+export interface ArticleTutorModalState {
+    isOpen: boolean;
+    isLoading: boolean;
+    article: Article | null;
+    chatHistory: ChatMessage[];
+}
+
+export interface DailyQuest {
+    title: string;
+    description: string;
+    xp: number;
+    completed: boolean;
+}
+
+export interface DefinitionState {
+    term: string;
+    definition: string;
+    position: { top: number; left: number, right?: number };
+    targetWidth: number;
+}
+export interface UnderstandingCheckState {
+    isOpen: boolean;
+    isLoading: boolean;
+    subtopic: Subtopic | null;
+    quiz: QuizData[];
+    error: string | null;
+}
+
+export interface ProjectTutorState {
+    isOpen: boolean;
+    isLoading: boolean;
+    projectStep: ProjectStep | null;
+    userCode: string | null;
+    feedback: string | null;
+    error: string | null;
+}
+
+export type UpNextItem = 
+    | { type: 'continue_course'; title: string; description: string; cta: string; courseId: string; }
+    | { type: 'start_course'; title: string; description: string; cta: string; courseId: string; }
+    | { type: 'skill_assessment'; title: string; description: string; cta: string; }
+    | { type: 'practice_topic'; title: string; description: string; cta: string; topic: string; };
+
+// --- New types for Planner and Habits ---
+export type View = 'dashboard' | 'library' | 'planner' | 'assessment' | 'interview' | 'projects' | 'practice' | 'practice_quiz' | 'code_explainer' | 'profile';
 
 export interface Habit {
   id: string;
   title: string;
-  goal: 'daily' | 'weekly';
+  goal: 'daily';
   createdAt: number;
-  history: Record<string, boolean>; // "YYYY-MM-DD": true
+  history: Record<string, boolean>; // e.g., { '2024-07-21': true }
 }
 
 export interface DailyTask {
-  id: string;
-  day: number;
-  date: number;
-  courseId: string;
-  isCompleted: boolean;
+    id: string;
+    day: number;
+    date: number; // timestamp for the start of the day
+    courseId: string;
+    isCompleted: boolean;
+    priority: TaskPriority;
 }
 
 export interface LearningPlan {
-  id: string;
-  title:string;
-  startDate: number;
-  duration: number;
-  dailyTasks: DailyTask[];
-  status: 'active' | 'completed' | 'archived';
-  folderId: string;
+    id: string;
+    title: string;
+    startDate: number;
+    duration: number; // in days
+    dailyTasks: DailyTask[];
+    status: 'active' | 'archived' | 'completed';
+    folderId: string;
 }
 
+export interface PlanOutlineDay {
+    day: number;
+    title: string;
+    objective: string;
+}
+
+export interface PlanOutline {
+    planTitle: string;
+    optimalDuration: number;
+    dailyBreakdown: PlanOutlineDay[];
+}
 
 export interface User {
   id: string;
@@ -332,127 +436,3 @@ export interface User {
   learningPlans: LearningPlan[];
   habits: Habit[];
 }
-
-export type CourseSource = {
-  type: 'syllabus';
-  content: string;
-} | {
-  type: 'url';
-  content: string;
-} | {
-  type: 'pdf';
-  content: string; // base64 encoded text content
-  filename: string;
-};
-
-// Article Creator
-export interface BlogPostAndIdeas {
-    title: string;
-    subtitle: string;
-    blogPost: string;
-    relatedTopics: string[];
-}
-
-export interface ArticleCreatorState {
-    isLoading: boolean;
-    error: string | null;
-    title: string | null;
-    subtitle: string | null;
-    blogPost: string | null;
-    ideas: string[];
-}
-
-export interface BulkArticleGenerationState {
-    isLoading: boolean;
-    progressMessage: string | null;
-    generatedArticles: Article[];
-    error: string | null;
-}
-
-export interface InterviewPrepState {
-  isOpen: boolean;
-  course: Course | null;
-  questionSets: InterviewQuestionSet[];
-  isGenerating: boolean;
-  elaboratingIndex: { setIndex: number; qIndex: number } | null;
-  error: string | null;
-}
-
-export interface ArticleIdeasModalState {
-    isOpen: boolean;
-    isLoading: boolean;
-    course: Course | null;
-    ideas: string[];
-    error?: string | null;
-}
-
-export interface ExploreModalState {
-    isOpen: boolean;
-    isLoading: boolean;
-    course: Course | null;
-    relatedTopics: RelatedTopic[];
-}
-
-export interface MindMapModalState {
-    isOpen: boolean;
-    course: Course | null;
-}
-
-export interface MindMapNode {
-    title: string;
-    children: MindMapNode[];
-}
-
-export interface ArticleTutorModalState {
-  isOpen: boolean;
-  isLoading: boolean;
-  article: Article | null;
-  chatHistory: ChatMessage[];
-}
-
-export interface DailyQuest {
-    title: string;
-    description: string;
-    xp: number;
-    completed: boolean;
-}
-
-export interface DefinitionState {
-    term: string;
-    definition: string;
-    position: {
-        top: number;
-        left: number;
-        right?: number;
-    };
-    targetWidth: number;
-}
-
-export interface UpNextItem {
-    type: 'continue_course' | 'start_course' | 'practice_topic' | 'skill_assessment';
-    title: string;
-    description: string;
-    cta: string;
-    courseId?: string;
-    topic?: string;
-}
-
-export interface UnderstandingCheckState {
-  isOpen: boolean;
-  isLoading: boolean;
-  subtopic: Subtopic | LearningItem | null;
-  quiz: QuizData[];
-  error: string | null;
-}
-
-export interface ProjectTutorState {
-    isOpen: boolean;
-    isLoading: boolean;
-    projectStep: ProjectStep | null;
-    userCode: string | null;
-    feedback: string | null;
-    error: string | null;
-}
-
-
-export type View = 'planner' | 'assessment' | 'practice' | 'interview' | 'projects' | 'practice_quiz' | 'code_explainer' | 'profile' | 'login' | 'article_viewer' | 'habits';

@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { Project } from '../../types';
 import { useAppContext } from '../../context/AppContext';
 import ProgressBar from '../common/ProgressBar';
+// FIX: Added WrenchScrewdriverIcon and SparklesIcon to imports
 import { ChevronLeftIcon, WrenchScrewdriverIcon, CheckIcon, SparklesIcon } from '../common/Icons';
 
 interface ProjectDetailProps {

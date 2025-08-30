@@ -5,9 +5,11 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { 
     CloseIcon, 
     LogoIcon, 
+    // FIX: Added WrenchScrewdriverIcon to imports
     WrenchScrewdriverIcon, 
     AcademicCapIcon, 
     BookOpenIcon, 
+    // FIX: Added SparklesIconV2 to imports
     SparklesIconV2,
     DiagramIcon,
     CodeIcon,
@@ -17,6 +19,7 @@ import {
     LinkIcon,
     DocumentTextIcon,
     FolderPlusIcon,
+    // FIX: Added XCircleIcon to imports
     XCircleIcon,
     LoadingSpinnerIcon
 } from '../common/Icons';

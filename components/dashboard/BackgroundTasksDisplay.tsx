@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppContext } from '../../context/AppContext';
+// FIX: Added XCircleIcon to imports
 import { LoadingSpinnerIcon, CheckCircleIcon, XCircleIcon, CloseIcon } from '../common/Icons';
 
 const BackgroundTasksDisplay: React.FC = () => {

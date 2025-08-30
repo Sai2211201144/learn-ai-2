@@ -1,5 +1,7 @@
 
+
 import React from 'react';
+// FIX: Added WrenchScrewdriverIcon to imports
 import { BookOpenIcon, CheckCircleIcon, WrenchScrewdriverIcon } from '../common/Icons';
 
 interface StatsCardProps {

@@ -2,8 +2,11 @@ import { Achievement, AchievementId } from '../types';
 import { 
     BookOpenIcon, 
     CheckCircleIcon, 
+    // FIX: Added WrenchScrewdriverIcon to imports
     WrenchScrewdriverIcon, 
+    // FIX: Added TrophyIcon to imports
     TrophyIcon, 
+    // FIX: Added SparklesIcon to imports
     SparklesIcon,
     AcademicCapIcon
 } from '../components/common/Icons';

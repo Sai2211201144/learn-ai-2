@@ -1,5 +1,7 @@
 
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+// FIX: Added SparklesIcon to imports
 import { ArrowUturnLeftIcon, SparklesIcon, LoadingSpinnerIcon } from '../common/Icons';
 import * as geminiService from '../../services/geminiService';
 

@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Course, Subtopic, Topic, ContentBlock } from '../../types';
 import { useAppContext } from '../../context/AppContext';
@@ -15,8 +16,10 @@ import {
     ChatBubbleOvalLeftEllipsisIcon, 
     LightBulbIcon,
     BeakerIcon, 
+    // FIX: Added WrenchScrewdriverIcon to imports
     WrenchScrewdriverIcon,
     QuizIcon,
+    // FIX: Added SparklesIcon to imports
     SparklesIcon
 } from '../common/Icons';
 

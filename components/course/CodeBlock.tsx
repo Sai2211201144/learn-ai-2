@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as geminiService from '../../services/geminiService';
+// FIX: Added SparklesIcon to imports
 import { ClipboardIcon, CheckIcon, SparklesIcon, CloseIcon, LoadingSpinnerIcon, ChevronDownIcon } from '../common/Icons';
 
 interface CodeBlockProps {

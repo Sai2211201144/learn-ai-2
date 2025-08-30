@@ -1,6 +1,8 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Course, Article } from '../../types';
+// FIX: Added TrashIcon to imports
 import { FolderIcon, EllipsisVerticalIcon, PencilIcon, TrashIcon, BookOpenIcon, PlusIcon, FolderPlusIcon } from '../common/Icons';
 
 // --- Menu Component ---

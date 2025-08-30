@@ -1,7 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { TriageChallengeData } from '../../types';
 import DiagramBlock from './DiagramBlock';
+// FIX: Added XCircleIcon to imports
 import { CheckCircleIcon, XCircleIcon, LightBulbIcon } from '../common/Icons';
 
 interface TriageChallengeBlockProps {

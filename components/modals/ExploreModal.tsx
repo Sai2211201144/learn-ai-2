@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { RelatedTopic, KnowledgeLevel } from '../../types';
+// FIX: Added SparklesIcon to imports
 import { CloseIcon, SparklesIcon, LoadingSpinnerIcon } from '../common/Icons';
 
 interface ExploreModalProps {

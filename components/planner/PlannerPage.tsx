@@ -1,156 +1,138 @@
 
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import type { Course, Folder, View, Article } from '../../types';
+import React, { useState, useMemo } from 'react';
+import type { View, Habit } from '../../types';
 import { useAppContext } from '../../context/AppContext';
 import { 
     PlusIcon, 
-    MagnifyingGlassIcon,
-    BookOpenIcon,
-    FolderPlusIcon,
-    AcademicCapIcon,
-    ClipboardDocumentCheckIcon,
-    CommandLineIcon,
-    SparklesIcon,
-    RectangleGroupIcon,
-    CloseIcon,
-    PencilIcon,
-    CalendarDaysIcon
+    FireIcon,
+    TrashIcon,
+    CheckCircleIcon,
+    SparklesIcon
 } from '../common/Icons';
-import ArticleCreatorPage from '../creator/ArticleCreatorPage';
-import BulkArticleCreatorPage from '../creator/BulkArticleCreatorPage';
-import FolderAccordion from '../dashboard/FolderAccordion';
 import CreatePlanModal from './CreatePlanModal';
 import WeeklyPlanner from './WeeklyPlanner';
 import DailyGoalCard from './DailyGoalCard';
 
-// --- Reusable Inline Components ---
+// --- Habit Tracker Components (from HabitsPage) ---
 
-const CreateDropdown: React.FC<{
-    onClose: () => void;
-    onStartCreatePlan: () => void;
-    onStartCreateCourse: () => void;
-    onShowFolderForm: () => void;
-    onStartCreateArticle: () => void;
-    onStartBulkCreate: () => void;
-}> = ({ onClose, onStartCreatePlan, onStartCreateCourse, onShowFolderForm, onStartCreateArticle, onStartBulkCreate }) => {
-    const dropdownRef = useRef<HTMLDivElement>(null);
+const getYYYYMMDD = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+};
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onClose]);
+const calculateStreak = (history: Record<string, boolean>): number => {
+    let streak = 0;
+    const currentDate = new Date();
+    
+    if (!history[getYYYYMMDD(currentDate)]) {
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
 
-    const handleAction = (action: () => void) => {
-        action();
-        onClose();
+    while (true) {
+        const dateStr = getYYYYMMDD(currentDate);
+        if (history[dateStr]) {
+            streak++;
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+    return streak;
+};
+
+const HabitCard: React.FC<{ habit: Habit }> = ({ habit }) => {
+    const { handleToggleHabitCompletion, handleDeleteHabit } = useAppContext();
+    
+    const streak = useMemo(() => calculateStreak(habit.history), [habit.history]);
+    
+    const todayStr = getYYYYMMDD(new Date());
+    const isCompletedToday = !!habit.history[todayStr];
+
+    const handleTodayCheck = () => {
+        handleToggleHabitCompletion(habit.id, todayStr);
     };
 
-    const menuItems = [
-        { icon: <CalendarDaysIcon className="w-5 h-5"/>, label: "New Learning Plan", action: onStartCreatePlan },
-        { icon: <BookOpenIcon className="w-5 h-5"/>, label: "New Single Path", action: onStartCreateCourse },
-        { icon: <PencilIcon className="w-5 h-5"/>, label: "New Single Article", action: onStartCreateArticle },
-        { icon: <RectangleGroupIcon className="w-5 h-5"/>, label: "New Bulk Articles", action: onStartBulkCreate },
-        { icon: <FolderPlusIcon className="w-5 h-5"/>, label: "New Folder", action: onShowFolderForm },
-    ];
+    const renderHeatmap = () => {
+        const cells = [];
+        const today = new Date();
+        // Generate cells for the last 35 days (5 weeks)
+        for (let i = 34; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateStr = getYYYYMMDD(date);
+            const isCompleted = habit.history[dateStr];
+            cells.push(
+                <div 
+                    key={dateStr}
+                    title={`${dateStr}: ${isCompleted ? 'Completed' : 'Not completed'}`}
+                    className={`w-4 h-4 rounded-sm ${isCompleted ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-secondary-hover)]'}`}
+                />
+            );
+        }
+        return <div className="grid grid-cols-7 gap-1.5">{cells}</div>;
+    };
 
     return (
-        <div ref={dropdownRef} className="absolute top-full right-0 mt-2 w-64 bg-[var(--color-card)] rounded-lg shadow-2xl border border-[var(--color-border)] z-20 animate-fade-in-up-fast p-2">
-            {menuItems.map(item => (
-                <button key={item.label} onClick={() => handleAction(item.action)} className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-[var(--color-foreground)] hover:bg-[var(--color-secondary)]">
-                    {item.icon}
-                    <span>{item.label}</span>
+        <div className="bg-[var(--color-card)] p-4 rounded-xl border border-[var(--color-border)] flex flex-col md:flex-row items-start gap-4">
+            <div className="flex-grow">
+                <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-lg text-[var(--color-foreground)]">{habit.title}</h3>
+                    <div className="flex items-center gap-2 text-orange-400">
+                        <FireIcon className="w-5 h-5" />
+                        <span className="font-bold text-lg">{streak}</span>
+                    </div>
+                </div>
+                <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-[var(--color-muted-foreground)] mb-2">Last 5 Weeks</h4>
+                    {renderHeatmap()}
+                </div>
+            </div>
+            <div className="w-full md:w-auto flex md:flex-col items-center gap-2 flex-shrink-0">
+                <button
+                    onClick={handleTodayCheck}
+                    className={`w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-colors border-2 ${isCompletedToday ? 'bg-green-500/10 text-green-500 border-green-500/30' : 'bg-[var(--color-secondary)] text-[var(--color-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]'}`}
+                >
+                    {isCompletedToday ? <CheckCircleIcon className="w-5 h-5"/> : <div className="w-5 h-5 border-2 border-current rounded-full"></div>}
+                    {isCompletedToday ? 'Completed!' : 'Complete Today'}
                 </button>
-            ))}
+                 <button onClick={() => handleDeleteHabit(habit.id)} className="p-2 text-[var(--color-muted-foreground)] hover:text-[var(--color-destructive)] hover:bg-[var(--color-destructive)]/10 rounded-full">
+                    <TrashIcon className="w-5 h-5" />
+                </button>
+            </div>
         </div>
     );
 };
 
-const CreatorModal: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode; onClose: () => void; }> = ({ title, icon, children, onClose }) => (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 animate-modal-bg" onClick={onClose}>
-        <div className="bg-[var(--color-card)] rounded-xl shadow-2xl p-6 w-full max-w-4xl mx-4 border border-[var(--color-border)] animate-modal-content flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <header className="flex justify-between items-start mb-4 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                    {icon}
-                    <h2 className="text-2xl font-bold text-[var(--color-foreground)]">{title}</h2>
-                </div>
-                <button onClick={onClose} className="p-1 rounded-full text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"><CloseIcon className="w-6 h-6" /></button>
-            </header>
-            <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 -mr-4">
-                {children}
-            </div>
-        </div>
-    </div>
-);
-
 
 // --- Main Page Component ---
-interface PlannerPageProps {
-    onNavigate: (view: View) => void;
-    onStartCreate: () => void;
-}
-
-type DisplayFolder = { id: string; name: string; courses: Course[]; articles: Article[] };
-
-const PlannerPage: React.FC<PlannerPageProps> = ({ onNavigate, onStartCreate }) => {
+const PlannerPage: React.FC = () => {
+    // FIX: Removed handleCreateLearningPlan as it does not exist on AppContextType. The CreatePlanModal uses context directly.
     const { 
         courses, 
-        folders, 
-        articles,
-        projects,
         localUser,
-        handleCreateFolder,
-        handleCreateLearningPlan
+        handleAddHabit
     } = useAppContext();
     
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showFolderForm, setShowFolderForm] = useState(false);
-    const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
-    const [createModalContent, setCreateModalContent] = useState<'none' | 'single' | 'bulk'>('none');
+    const [newHabitTitle, setNewHabitTitle] = useState('');
     
     const activePlan = useMemo(() => {
         return localUser.learningPlans?.find(plan => plan.status === 'active');
     }, [localUser.learningPlans]);
+
+    const courseMap = useMemo(() => new Map(courses.map(c => [c.id, c])), [courses]);
+
+    const tasks = useMemo(() => {
+        if (!activePlan) return [];
+        return activePlan.dailyTasks;
+    }, [activePlan]);
     
-    const filteredFolders = useMemo(() => {
-        const courseMap = new Map(courses.map(c => [c.id, c]));
-        const articleMap = new Map(articles.map(a => [a.id, a]));
-
-        const itemsInFolders = { courses: new Set<string>(), articles: new Set<string>() };
-        folders.forEach(folder => {
-            folder.courses.forEach(c => c?.id && itemsInFolders.courses.add(c.id));
-            folder.articles.forEach(a => a?.id && itemsInFolders.articles.add(a.id));
-        });
-        
-        const searchLower = searchTerm.toLowerCase();
-        
-        const populatedFolders: DisplayFolder[] = folders
-            .map(f => ({
-                ...f,
-                courses: f.courses.map(c => courseMap.get(c!.id)).filter((c): c is Course => !!c),
-                articles: f.articles.map(a => articleMap.get(a!.id)).filter((a): a is Article => !!a),
-            }))
-            .filter(f => f.name.toLowerCase().includes(searchLower));
-
-        const uncategorizedCourses = courses.filter(c => !itemsInFolders.courses.has(c.id) && c.title.toLowerCase().includes(searchLower));
-        const uncategorizedArticles = articles.filter(a => !itemsInFolders.articles.has(a.id) && a.title.toLowerCase().includes(searchLower));
-
-        const uncategorizedFolder: DisplayFolder = {
-            id: 'uncategorized',
-            name: 'Uncategorized',
-            courses: uncategorizedCourses,
-            articles: uncategorizedArticles,
-        };
-
-        return [...populatedFolders, uncategorizedFolder];
-    }, [courses, articles, folders, searchTerm]);
-
+    const handleAddHabitClick = () => {
+        if (newHabitTitle.trim()) {
+            handleAddHabit(newHabitTitle.trim());
+            setNewHabitTitle('');
+        }
+    };
 
     return (
         <div className="w-full max-w-screen-xl animate-fade-in mx-auto px-0 sm:px-6 lg:px-8">
@@ -159,26 +141,7 @@ const PlannerPage: React.FC<PlannerPageProps> = ({ onNavigate, onStartCreate }) 
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)]">
                         Planner
                     </h1>
-                    <p className="text-[var(--color-muted-foreground)] mt-1">Ready to dive back in and learn something new today, {localUser.name}?</p>
-                </div>
-                <div className="relative">
-                    <button 
-                        onClick={() => setIsCreateMenuOpen(prev => !prev)}
-                        className="flex items-center gap-2 px-4 py-2 bg-[var(--gradient-primary-accent)] text-white font-bold rounded-lg hover:opacity-90 transition-all shadow-lg"
-                    >
-                        <PlusIcon className="w-5 h-5"/>
-                        <span className="hidden sm:inline">Create New</span>
-                    </button>
-                    {isCreateMenuOpen && (
-                        <CreateDropdown 
-                            onClose={() => setIsCreateMenuOpen(false)}
-                            onStartCreatePlan={() => setIsPlanModalOpen(true)}
-                            onStartCreateCourse={onStartCreate}
-                            onShowFolderForm={() => setShowFolderForm(true)}
-                            onStartCreateArticle={() => setCreateModalContent('single')}
-                            onStartBulkCreate={() => setCreateModalContent('bulk')}
-                        />
-                    )}
+                    <p className="text-[var(--color-muted-foreground)] mt-1">Manage your weekly learning schedule and track your habits.</p>
                 </div>
             </header>
 
@@ -186,61 +149,47 @@ const PlannerPage: React.FC<PlannerPageProps> = ({ onNavigate, onStartCreate }) 
                  {activePlan ? (
                     <>
                         <DailyGoalCard plan={activePlan} />
-                        <WeeklyPlanner plan={activePlan} />
+                        <WeeklyPlanner plan={activePlan} filteredTasks={tasks}/>
                     </>
                 ) : (
                     <div className="text-center py-20 px-6 bg-[var(--color-secondary)] border-2 border-dashed border-[var(--color-border)] rounded-xl">
-                        <CalendarDaysIcon className="w-16 h-16 text-[var(--color-muted-foreground)]/30 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-[var(--color-foreground)]">Your Learning Plan will appear here</h3>
-                        <p className="text-[var(--color-muted-foreground)] mt-2">
+                        <h3 className="text-xl font-semibold text-[var(--color-foreground)]">No active learning plan.</h3>
+                        <p className="text-[var(--color-muted-foreground)] mt-2 mb-6">
                             Create a new plan to get started on your next learning adventure.
                         </p>
+                        <button onClick={() => setIsPlanModalOpen(true)} className="px-5 py-2.5 bg-[var(--color-primary)] text-white font-bold rounded-lg hover:bg-[var(--color-primary-hover)]">
+                            Create New Plan
+                        </button>
                     </div>
                 )}
             </div>
-
+            
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-4">My Content Library</h2>
-                <div>
-                    <div className="flex justify-end mb-4">
-                        <div className="relative w-full sm:w-64">
-                            <MagnifyingGlassIcon className="w-5 h-5 text-[var(--color-muted-foreground)] absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none"/>
-                            <input 
-                                type="text"
-                                placeholder="Search content..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 bg-[var(--color-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                            />
+                <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-4">Habit Builder</h2>
+                <div className="bg-[var(--color-card)] p-4 rounded-xl border border-[var(--color-border)] mb-4">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <input type="text" value={newHabitTitle} onChange={(e) => setNewHabitTitle(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddHabitClick()} placeholder="e.g., 'Code for 30 minutes'" className="w-full flex-grow px-4 py-2 bg-[var(--color-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]" />
+                        <button onClick={handleAddHabitClick} disabled={!newHabitTitle.trim()} className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 bg-[var(--color-primary)] text-white font-bold rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors disabled:opacity-50">
+                            <PlusIcon className="w-5 h-5"/> Add Habit
+                        </button>
+                    </div>
+                </div>
+                <div className="space-y-4">
+                    {localUser.habits.length > 0 ? (
+                        localUser.habits.map(habit => <HabitCard key={habit.id} habit={habit} />)
+                    ) : (
+                        <div className="text-center py-10 px-6 bg-[var(--color-secondary)] border-2 border-dashed border-[var(--color-border)] rounded-xl">
+                            <h3 className="text-lg font-semibold text-[var(--color-foreground)]">No habits yet!</h3>
+                            <p className="text-[var(--color-muted-foreground)] mt-1 text-sm">Add your first learning habit to start building a streak.</p>
                         </div>
-                    </div>
-                    {showFolderForm && (
-                        <div className="my-4"><button onClick={() => handleCreateFolder('New Folder')}>Create Folder</button></div>
                     )}
-                    <div className="space-y-4">
-                        {filteredFolders.map(folder => (
-                            <FolderAccordion key={folder.id} folder={folder} />
-                        ))}
-                    </div>
                 </div>
             </div>
 
             <CreatePlanModal 
                 isOpen={isPlanModalOpen}
                 onClose={() => setIsPlanModalOpen(false)}
-                onGenerate={handleCreateLearningPlan}
             />
-
-            {createModalContent !== 'none' && (
-                <CreatorModal
-                    onClose={() => setCreateModalContent('none')}
-                    title={createModalContent === 'single' ? "AI Article Creator" : "Bulk Article Creator"}
-                    icon={createModalContent === 'single' ? <PencilIcon className="w-7 h-7 text-[var(--color-primary)]"/> : <RectangleGroupIcon className="w-7 h-7 text-[var(--color-primary)]"/>}
-                >
-                    {createModalContent === 'single' && <ArticleCreatorPage />}
-                    {createModalContent === 'bulk' && <BulkArticleCreatorPage />}
-                </CreatorModal>
-            )}
         </div>
     );
 };

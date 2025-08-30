@@ -40,7 +40,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
         
         // Add a "light" or "dark" class for simple CSS targeting
-        if (['Vibrant Dark'].includes(theme.name)) {
+        if (['Vibrant Dark', 'Notion Dark'].includes(theme.name)) {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
         } else {
@@ -62,7 +62,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
     };
 
-    const isDark = useMemo(() => ['Vibrant Dark'].includes(theme.name), [theme]);
+    const isDark = useMemo(() => ['Vibrant Dark', 'Notion Dark'].includes(theme.name), [theme]);
 
     const value = useMemo(() => ({ theme, setTheme, isDark }), [theme, isDark]);
 

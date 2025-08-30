@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Course, Module, LearningItem, ContentBlock, Subtopic, Topic } from '../../types';
 import { useAppContext } from '../../context/AppContext';
@@ -13,10 +14,28 @@ import HyperparameterSimulatorBlock from './HyperparameterSimulatorBlock';
 import TriageChallengeBlock from './TriageChallengeBlock';
 import MarkdownRenderer from '../common/MarkdownRenderer';
 import { 
-    CheckCircleIcon, VideoIcon, DocumentIcon, ArticleIcon, LeetCodeIcon, GfgIcon, 
-    DiagramIcon, InteractiveModelIcon, HyperparameterIcon, BugAntIcon, TextIcon, CodeIcon, QuizIcon, 
-    FlashcardsIcon, ChatBubbleOvalLeftEllipsisIcon, CheckIcon, LightBulbIcon,
-    BeakerIcon, WrenchScrewdriverIcon
+    CheckCircleIcon, 
+    // FIX: Added VideoIcon to imports
+    VideoIcon, 
+    DocumentIcon, 
+    ArticleIcon, 
+    LeetCodeIcon, 
+    GfgIcon, 
+    DiagramIcon, 
+    InteractiveModelIcon, 
+    HyperparameterIcon, 
+    BugAntIcon, 
+    // FIX: Added TextIcon to imports
+    TextIcon, 
+    CodeIcon, 
+    QuizIcon, 
+    FlashcardsIcon, 
+    ChatBubbleOvalLeftEllipsisIcon, 
+    CheckIcon, 
+    LightBulbIcon,
+    BeakerIcon, 
+    // FIX: Added WrenchScrewdriverIcon to imports
+    WrenchScrewdriverIcon
 } from '../common/Icons';
 
 // --- Sub-Components for Learning Item Types ---

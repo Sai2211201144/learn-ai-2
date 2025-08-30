@@ -1,3 +1,4 @@
+
 import { Course, Folder, ChatMessage, TestResult, Progress, Project, User, Article } from '../types';
 
 const CHAT_HISTORY_KEY = 'mindflow:chat_history';
@@ -18,6 +19,9 @@ export const getGuestUserProfile = (): User | null => {
             if (!user.habits) {
                 user.habits = [];
             }
+            if (!user.learningPlans) {
+                user.learningPlans = [];
+            }
             return user;
         }
         return null;
@@ -29,7 +33,19 @@ export const getGuestUserProfile = (): User | null => {
 
 export const saveGuestUserProfile = (user: User): void => {
     try {
-        localStorage.setItem(GUEST_USER_PROFILE_KEY, JSON.stringify(user));
+        // Serialize progress Maps before saving to localStorage
+        const serializableUser = {
+            ...user,
+            courses: user.courses.map(c => ({
+                ...c,
+                progress: Object.fromEntries(c.progress),
+            })),
+            projects: user.projects.map(p => ({
+                ...p,
+                progress: Object.fromEntries(p.progress),
+            })),
+        };
+        localStorage.setItem(GUEST_USER_PROFILE_KEY, JSON.stringify(serializableUser));
     } catch (e) {
         console.error("Failed to save guest user profile", e);
     }

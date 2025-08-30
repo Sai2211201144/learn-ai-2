@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import type { Course, Folder, Article } from '../../types';
 import { ChevronDownIcon, FolderIcon, BookOpenIcon, PencilIcon } from '../common/Icons';

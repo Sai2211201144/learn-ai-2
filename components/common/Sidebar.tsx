@@ -1,7 +1,10 @@
+
+
 import React, { useState } from 'react';
 import { View } from '../../types';
-import { LogoIcon, RectangleGroupIcon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, CloseIcon, WrenchScrewdriverIcon, CommandLineIcon, UserCircleIcon, PencilIcon, BookOpenIcon, HomeIcon, ChevronDownIcon, SparklesIcon, CalendarDaysIcon } from './Icons';
+import { LogoIcon, RectangleGroupIcon, Cog6ToothIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, CloseIcon, WrenchScrewdriverIcon, CommandLineIcon, UserCircleIcon, PencilIcon, BookOpenIcon, HomeIcon, ChevronDownIcon, SparklesIcon, CalendarDaysIcon, SunIcon, MoonIcon } from './Icons';
 import { useAppContext } from '../../context/AppContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface SidebarProps {
     view: View;
@@ -90,6 +93,35 @@ const UserProfile: React.FC = () => {
     );
 };
 
+const ThemeToggle = () => {
+    const { isDark, setTheme } = useTheme();
+
+    const toggleTheme = () => {
+        if (isDark) {
+            setTheme('GeeksForGeeks'); // A light theme
+        } else {
+            setTheme('Vibrant Dark');
+        }
+    };
+
+    return (
+        <button
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between p-3 rounded-lg text-[var(--color-muted-foreground)] hover:bg-[var(--color-secondary-hover)] hover:text-[var(--color-foreground)]"
+        >
+            <div className="flex items-center">
+                {isDark ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
+                <span className="ml-4 font-semibold">Theme</span>
+            </div>
+            <div className="relative w-11 h-6 bg-[var(--color-border)] rounded-full transition-colors duration-200">
+                <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${isDark ? 'translate-x-5' : 'translate-x-0'}`}
+                />
+            </div>
+        </button>
+    );
+};
+
 
 const Sidebar: React.FC<SidebarProps> = ({ view, setView, isOpen, onClose, onOpenSettings }) => {
     
@@ -124,28 +156,32 @@ const Sidebar: React.FC<SidebarProps> = ({ view, setView, isOpen, onClose, onOpe
                 </button>
             </div>
             <nav className="flex-grow space-y-1">
-                <CollapsibleNavItem icon={<RectangleGroupIcon className="w-6 h-6" />} label="Workspace" defaultOpen={true}>
-                    <NavItem
-                        icon={<CalendarDaysIcon className="w-6 h-6" />}
-                        label="Planner"
-                        isActive={view === 'planner'}
-                        onClick={() => handleNavigation('planner')}
-                    />
-                    <NavItem
-                        icon={<SparklesIcon className="w-6 h-6" />}
-                        label="Habits"
-                        isActive={view === 'habits'}
-                        onClick={() => handleNavigation('habits')}
-                    />
-                    <NavItem
-                        icon={<WrenchScrewdriverIcon className="w-6 h-6" />}
-                        label="Projects"
-                        isActive={view === 'projects'}
-                        onClick={() => handleNavigation('projects')}
-                    />
-                </CollapsibleNavItem>
+                <NavItem
+                    icon={<HomeIcon className="w-6 h-6" />}
+                    label="Dashboard"
+                    isActive={view === 'dashboard'}
+                    onClick={() => handleNavigation('dashboard')}
+                />
+                 <NavItem
+                    icon={<RectangleGroupIcon className="w-6 h-6" />}
+                    label="Library"
+                    isActive={view === 'library'}
+                    onClick={() => handleNavigation('library')}
+                />
+                <NavItem
+                    icon={<CalendarDaysIcon className="w-6 h-6" />}
+                    label="Planner"
+                    isActive={view === 'planner'}
+                    onClick={() => handleNavigation('planner')}
+                />
+                <NavItem
+                    icon={<WrenchScrewdriverIcon className="w-6 h-6" />}
+                    label="Projects"
+                    isActive={view === 'projects'}
+                    onClick={() => handleNavigation('projects')}
+                />
 
-                <CollapsibleNavItem icon={<AcademicCapIcon className="w-6 h-6" />} label="Tools">
+                <CollapsibleNavItem icon={<SparklesIcon className="w-6 h-6" />} label="Tools">
                     <NavItem
                         icon={<ClipboardDocumentCheckIcon className="w-6 h-6" />}
                         label="Skill Assessment"
@@ -166,7 +202,8 @@ const Sidebar: React.FC<SidebarProps> = ({ view, setView, isOpen, onClose, onOpe
                     />
                 </CollapsibleNavItem>
             </nav>
-            <div className="flex-shrink-0 space-y-2">
+            <div className="flex-shrink-0 space-y-1">
+                <ThemeToggle />
                 <UserProfile />
                 <NavItem
                     icon={<UserCircleIcon className="w-6 h-6" />}
